@@ -132,7 +132,7 @@ const ProgressSection = () => {
 					value={subjectInput}
 					onChange={(e) => setSubjectInput(e.target.value)}
 					className={inputStyle}
-					placeholder="Add a course, topic or assignment..."
+					placeholder="Add a project, topic or assignment..."
 				/>
 				<button type="button" onClick={addSubject} className={addButton}>
 					Add
@@ -140,7 +140,7 @@ const ProgressSection = () => {
 			</div>
 			<div className="mt-4">
 				<h2 className="text-sm font-semibold my-4 text-gray-500 dark:text-neutral-400 ">
-					Courses, Topics, Assignments
+					Projects, Topics, Assignments
 				</h2>
 				{subjects.map((subject) => (
 					<div key={subject.id} className="flex items-center mt-2 space-x-2">

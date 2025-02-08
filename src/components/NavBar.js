@@ -41,7 +41,7 @@ export default function TestNavBar() {
 				<div className="flex gap-4 items-center justify-between">
 					{logo}
 					<h1 className="text-base font-semibold hidden sm:block">
-						A Student Planner
+						Day Planner
 					</h1>
 				</div>
 				<div className="flex flex-wrap gap-2 items-center justify-between">

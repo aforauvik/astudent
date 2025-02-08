@@ -12,7 +12,7 @@ function Footer() {
 						href="#"
 						aria-label="Brand"
 					>
-						A Student Day Planner
+						Day Planner
 					</Link>
 				</div>
 
