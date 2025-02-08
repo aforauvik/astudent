@@ -1,5 +1,7 @@
 "use client";
 
+import Footer from "./Footer";
+import MoreButton from "./More";
 import NavBar from "./NavBar";
 import ProgressSection from "./ProgressSection";
 import RememberSection from "./RememberSection";
@@ -12,10 +14,12 @@ const Dashboard = () => {
 			<div className="p-4">
 				<div className="flex gap-4">
 					<TaskSection title="To Do" />
+					{/* <MoreButton /> */}
 					<RememberSection title="To Remember" />
 				</div>
 				<ProgressSection />
 			</div>
+			<Footer />
 		</div>
 	);
 };

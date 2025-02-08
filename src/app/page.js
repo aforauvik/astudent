@@ -4,6 +4,7 @@ import {useEffect} from "react";
 import {useRouter} from "next/navigation";
 import {supabase} from "../lib/supabaseClient";
 import SignIn from "@/components/SignIn";
+import Footer from "@/components/Footer";
 
 export default function Home() {
 	const router = useRouter();
@@ -19,5 +20,10 @@ export default function Home() {
 		checkAuth();
 	}, []);
 
-	return <SignIn />;
+	return (
+		<>
+			<SignIn />
+			<Footer />
+		</>
+	);
 }
