@@ -156,7 +156,10 @@ const ProgressSection = () => {
 								</button>
 								<button
 									className={destructiveButton}
-									onClick={() => setEditingSubject(null)}
+									onClick={() => {
+										setEditingSubject(null);
+										setOpenDropdown(null);
+									}}
 								>
 									Cancel
 								</button>

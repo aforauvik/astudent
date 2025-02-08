@@ -161,7 +161,7 @@ const TaskSection = ({title}) => {
 									onChange={(e) => setEditText(e.target.value)}
 									className={inputStyle}
 								/>
-								<button className={smallButton} onClick={updateTask}>
+								<button className={secondaryButton} onClick={updateTask}>
 									Save
 								</button>
 								<button

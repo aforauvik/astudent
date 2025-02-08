@@ -110,6 +110,7 @@ const ProgressSection = () => {
 				.from("progress")
 				.update({name: editText})
 				.eq("id", editingSubject);
+			setOpenDropdown(null); // Close the dropdown after update
 			if (!error) {
 				fetchSubjects();
 				setEditingSubject(null);
@@ -156,7 +157,10 @@ const ProgressSection = () => {
 								</button>
 								<button
 									className={destructiveButton}
-									onClick={() => setEditingSubject(null)}
+									onClick={() => {
+										setEditingSubject(null);
+										setOpenDropdown(null);
+									}}
 								>
 									Cancel
 								</button>
