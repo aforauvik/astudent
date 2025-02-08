@@ -5,7 +5,7 @@ function Footer() {
 	return (
 		<footer className="mt-auto w-full py-10 px-4 sm:px-6 lg:px-8 mx-auto">
 			<div className="text-center">
-				<div className="w-full py-6 border-t border-gray-200 dark:border-neutral-900"></div>
+				<div className="w-full py-4 border-t border-gray-200 dark:border-neutral-900"></div>
 				<div>
 					<Link
 						className="flex-none text-base font-semibold text-black dark:text-white"

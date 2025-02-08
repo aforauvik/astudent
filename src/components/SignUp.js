@@ -3,6 +3,7 @@
 import React, {useState} from "react";
 import {useRouter} from "next/navigation";
 import {supabase} from "../lib/supabaseClient";
+import {inputStyle, logo} from "../app/AllStyles";
 
 const SignUp = () => {
 	const [name, setName] = useState("");
@@ -53,6 +54,7 @@ const SignUp = () => {
 			<div className="mt-7 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-900 dark:border-neutral-700">
 				<div className="p-4 sm:p-7">
 					<div className="text-center">
+						<div className="flex justify-center mb-6">{logo}</div>
 						<h1 className="block text-2xl font-bold text-gray-800 dark:text-white">
 							Sign up
 						</h1>

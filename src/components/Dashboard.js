@@ -12,7 +12,7 @@ const Dashboard = () => {
 		<div className="">
 			<NavBar />
 			<div className="p-4">
-				<div className="flex gap-4">
+				<div className="flex gap-4 flex-wrap sm:flex-nowrap">
 					<TaskSection title="To Do" />
 					{/* <MoreButton /> */}
 					<RememberSection title="To Remember" />
