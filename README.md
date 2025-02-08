@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Straight A Student Tracker
 
-## Getting Started
+This web app is inspired by the book _How to Be a Straight A Student_ by Cal Newport. The book highlights strategies for academic success, including noting down daily tasks, writing down things to remember, and tracking progress on ongoing projects. This app is designed to help students put these strategies into practice in their academic life.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- **Task Management**: Students can create and view their daily tasks and mark them as complete once finished.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **Remember Section**: A space for students to write down things they need to remember, such as mid-term date.
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- **Progress Tracking**: Students can track their progress on assignment or topics, helping them visualize their accomplishments.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Usage
 
-## Learn More
+Once the app is running, follow these steps to get started:
 
-To learn more about Next.js, take a look at the following resources:
+1. **Sign Up / Log In**: Create a new account or log in to an existing one.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+2. **Create Tasks**: Navigate to the 'Tasks' section, add your daily tasks, and mark them as complete when done.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+3. **Take Notes**: Use the 'Remember' section to write down important notes or things you need to remember.
 
-## Deploy on Vercel
+4. **Track Progress**: In the 'Progress Tracking' section, track your progress on projects or topics to visualize your achievements.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Tech Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Frontend**: Next.js, Tailwind CSS, Preline UI
+- **Backend**: Supabase (for database and authentication)
+- **Authentication**: Supabase Auth
+
+## Contributing
+
+We welcome contributions! If you'd like to improve the project, feel free to submit a pull request. Here's how:
+
+1. Fork the repository.
+2. Create a new branch.
+3. Make your changes.
+4. Commit and push your changes.
+5. Create a pull request.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
