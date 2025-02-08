@@ -51,7 +51,7 @@ const TaskSection = ({title}) => {
 			.from("tasks")
 			.select("*")
 			.eq("user_id", userId)
-			.order("created_at", {ascending: true}); // Ensure tasks are ordered by created_at ascending
+			.order("created_at", {ascending: true});
 
 		if (!error) setTasks(data || []);
 	};

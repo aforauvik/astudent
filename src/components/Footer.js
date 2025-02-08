@@ -17,7 +17,7 @@ function Footer() {
 				</div>
 
 				<div className="mt-3">
-					<p className="text-xs font-semibold uppercase text-gray-500 dark:text-neutral-500">
+					<p className="text-xs font-semibold text-gray-500 dark:text-neutral-500">
 						Designed & Developed In North Carolina By{" "}
 						<Link
 							className="text-orange-400 decoration-2 hover:underline focus:outline-none focus:underline font-bold dark:text-orange-400"
@@ -27,8 +27,8 @@ function Footer() {
 							Auvik Mir
 						</Link>
 					</p>
-					<p className="text-xs font-semibold uppercase text-gray-500 dark:text-neutral-500">
-						CopyRight © {new Date().getFullYear()}
+					<p className="text-xs font-semibold text-gray-500 dark:text-neutral-500">
+						Copyright © {new Date().getFullYear()}
 					</p>
 				</div>
 			</div>
