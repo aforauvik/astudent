@@ -2,6 +2,6 @@
 
 import Success from "@/components/Success";
 
-export default function SignUpPage() {
+export default function SuccessPage() {
 	return <Success />;
 }

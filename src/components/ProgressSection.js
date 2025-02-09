@@ -230,9 +230,9 @@ const ProgressSection = () => {
 										></circle>
 									</svg>
 
-									<div className="absolute top-1/2 start-1/2 transform -translate-y-1/2 -translate-x-1/2 ">
+									<div className="absolute top-[45%] start-1/2 transform -translate-y-1/2 -translate-x-1/2 ">
 										<span
-											className={`text-center text-xs font-bold ${
+											className={`text-center text-[9px] font-bold ${
 												subject.progress >= 90
 													? "text-green-600"
 													: subject.progress >= 75
