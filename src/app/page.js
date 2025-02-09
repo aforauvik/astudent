@@ -5,6 +5,7 @@ import {useRouter} from "next/navigation";
 import {supabase} from "../lib/supabaseClient";
 import SignIn from "@/components/SignIn";
 import Footer from "@/components/Footer";
+import Image from "next/image";
 
 export default function Home() {
 	const router = useRouter();

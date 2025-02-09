@@ -78,7 +78,7 @@ const SignUp = () => {
 									</label>
 									<input
 										type="text"
-										className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400"
+										className="py-3 px-4 block w-full border-gray-200 font-semibold rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-700 dark:text-white"
 										value={name}
 										onChange={(e) => setName(e.target.value)}
 										required
@@ -90,7 +90,7 @@ const SignUp = () => {
 									</label>
 									<input
 										type="email"
-										className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400"
+										className="py-3 px-4 block w-full border-gray-200 font-semibold rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-700 dark:text-white"
 										value={email}
 										onChange={(e) => setEmail(e.target.value)}
 										required
@@ -103,7 +103,7 @@ const SignUp = () => {
 									</label>
 									<input
 										type="password"
-										className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400"
+										className="py-3 px-4 block w-full border-gray-200 font-semibold rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-700 dark:text-white"
 										value={password}
 										onChange={(e) => setPassword(e.target.value)}
 										required
@@ -116,7 +116,7 @@ const SignUp = () => {
 									</label>
 									<input
 										type="password"
-										className="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400"
+										className="py-3 px-4 block w-full border-gray-200 font-semibold rounded-lg text-sm dark:bg-neutral-900 dark:border-neutral-700 dark:text-white"
 										value={confirmPassword}
 										onChange={(e) => setConfirmPassword(e.target.value)}
 										required

@@ -38,15 +38,11 @@ const SignIn = () => {
 				<div className="p-4 sm:p-7">
 					<div className="text-center">
 						<div className="flex justify-center mb-6">{logo}</div>
-						<Link
-							href="/"
-							className="flex justify-center mb-6"
-							aria-label="Brand"
-						>
-							<h1 className="block text-2xl font-bold text-gray-800 dark:text-white">
-								Sign in
-							</h1>
-						</Link>
+
+						<h1 className="block text-2xl font-bold text-gray-800 dark:text-white">
+							Sign in
+						</h1>
+
 						<p className="mt-2 text-sm text-gray-600 dark:text-neutral-400">
 							Don't have an account yet?{" "}
 							<Link

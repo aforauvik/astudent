@@ -10,8 +10,10 @@ const openSans = Open_Sans({
 });
 
 export const metadata = {
-	title: "A Student | Day Planner",
-	description: "Day Planner",
+	title: "Day Planner",
+	description:
+		"This web app is inspired by the book How to Be a Straight A Student by Cal Newport. The book highlights strategies for academic success, including noting down daily tasks, writing down things to remember, and tracking progress on ongoing projects. This app is designed to help students put these strategies into practice in their academic life.",
+	image: "/og.png",
 };
 
 export default function RootLayout({children}) {

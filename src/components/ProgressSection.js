@@ -132,7 +132,7 @@ const ProgressSection = () => {
 					value={subjectInput}
 					onChange={(e) => setSubjectInput(e.target.value)}
 					className={inputStyle}
-					placeholder="Add a project, topic or assignment..."
+					placeholder="Track progress of a project, topic or assignment..."
 				/>
 				<button type="button" onClick={addSubject} className={addButton}>
 					Add
