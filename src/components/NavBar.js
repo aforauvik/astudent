@@ -1,5 +1,7 @@
 "use client";
 
+import CurrentDateTime from "./TimeDate";
+
 import {useEffect, useState} from "react";
 import {useRouter} from "next/navigation";
 import {supabase} from "@/lib/supabaseClient";
@@ -43,11 +45,13 @@ export default function TestNavBar() {
 					<h1 className="text-base font-semibold hidden sm:block">
 						Day Planner
 					</h1>
+
+					{/* <CurrentDateTime /> */}
 				</div>
 				<div className="flex flex-wrap gap-2 items-center justify-between">
 					{user && (
 						<p className="text-base font-semibold text-neutral-400">
-							❤️ Welcome,{" "}
+							💪 Welcome,{" "}
 							<span className="dark:text-white">
 								{user.user_metadata?.display_name || user.email}
 							</span>

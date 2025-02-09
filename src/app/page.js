@@ -6,6 +6,7 @@ import {supabase} from "../lib/supabaseClient";
 import SignIn from "@/components/SignIn";
 import Footer from "@/components/Footer";
 import Image from "next/image";
+import Landing from "@/components/Landing";
 
 export default function Home() {
 	const router = useRouter();
@@ -23,8 +24,9 @@ export default function Home() {
 
 	return (
 		<>
-			<SignIn />
-			<Footer />
+			{/* <SignIn />
+			<Footer /> */}
+			<Landing />
 		</>
 	);
 }

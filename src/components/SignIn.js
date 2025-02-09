@@ -74,12 +74,12 @@ const SignIn = () => {
 										<label className="font-semibold block text-sm mb-2 dark:text-white">
 											Password
 										</label>
-										<Link
+										{/* <Link
 											href="/resetpassword"
 											className="inline-flex items-center gap-x-1 text-sm text-blue-600 decoration-2 hover:underline focus:outline-none focus:underline font-semibold dark:text-blue-500"
 										>
 											Forgot password?
-										</Link>
+										</Link> */}
 									</div>
 									<input
 										type="password"
