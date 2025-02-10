@@ -141,7 +141,7 @@ const RememberSection = ({title}) => {
 					value={taskInput}
 					onChange={(e) => setTaskInput(e.target.value)}
 					className={inputStyle}
-					placeholder="I need to remember..."
+					placeholder="e.g. CS101 Midterm - Tuesday at 2 PM"
 				/>
 				<button type="button" onClick={addTask} className={addButton}>
 					Add

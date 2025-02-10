@@ -141,7 +141,7 @@ const TaskSection = ({title}) => {
 					value={taskInput}
 					onChange={(e) => setTaskInput(e.target.value)}
 					className={inputStyle}
-					placeholder="I need to do..."
+					placeholder="e.g. 12 PM - 1 PM - Practice Math"
 				/>
 				<button type="button" onClick={addTask} className={addButton}>
 					Add
