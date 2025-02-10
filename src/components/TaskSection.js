@@ -1,5 +1,6 @@
 "use client";
 import {useState, useEffect, useRef} from "react";
+import {useRouter} from "next/navigation";
 import {supabase} from "../lib/supabaseClient";
 import {
 	inputStyle,
@@ -17,6 +18,7 @@ const TaskSection = ({title}) => {
 	const [editText, setEditText] = useState("");
 	const [openDropdown, setOpenDropdown] = useState(null);
 	const dropdownRef = useRef(null); // Reference for dropdown
+	const router = useRouter();
 
 	useEffect(() => {
 		fetchTasks();
@@ -42,6 +44,7 @@ const TaskSection = ({title}) => {
 
 		if (sessionError || !sessionData?.session) {
 			console.error("No active session found", sessionError);
+
 			return;
 		}
 
