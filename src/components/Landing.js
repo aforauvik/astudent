@@ -69,7 +69,7 @@ function Landing() {
 							<p className="text-xs font-semibold text-gray-500 dark:text-neutral-500">
 								Designed & Developed In <br /> North Carolina By{" "}
 								<Link
-									className="text-orange-400 decoration-2 hover:underline focus:outline-none focus:underline font-bold dark:text-orange-400"
+									className="text-orange-400 decoration-2 hover:underline focus:outline-none focus:underline font-semibold dark:text-orange-400"
 									href="https://www.auvik.me/"
 									target="blank"
 								>
