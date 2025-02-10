@@ -9,7 +9,7 @@ function Footer() {
 				<div>
 					<Link
 						className="flex-none text-base font-semibold text-black dark:text-white"
-						href="#"
+						href="/"
 						aria-label="Brand"
 					>
 						Day Planner
