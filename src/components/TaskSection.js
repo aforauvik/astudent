@@ -43,9 +43,11 @@ const TaskSection = ({title}) => {
 			await supabase.auth.getSession();
 
 		if (sessionError || !sessionData?.session) {
-			console.error("No active session found", sessionError);
+			await supabase.auth.signOut();
+			router.push("/");
+			// console.error("No active session found", sessionError);
 
-			return;
+			// return;
 		}
 
 		const userId = sessionData.session.user.id;
