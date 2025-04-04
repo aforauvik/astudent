@@ -125,7 +125,7 @@ const ProgressSection = () => {
 
 	return (
 		<div className="p-4 mt-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-950 dark:border-neutral-900 sm:w-1/2 w-full">
-			<h2 className="text-lg font-semibold mb-4">🎉 Progress</h2>
+			<h2 className="text-lg font-semibold mb-4">🎉 Track</h2>
 			<div className="flex rounded-lg shadow-sm">
 				<input
 					type="text"
