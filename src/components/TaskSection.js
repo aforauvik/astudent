@@ -21,7 +21,16 @@ const TaskSection = ({title}) => {
 	const dropdownRef = useRef(null);
 	const router = useRouter();
 
-	const daysOfWeek = ["Daily", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+	const days = [
+		{value: "Daily", label: "Daily", mobileLabel: "D"},
+		{value: "Mon", label: "Mon", mobileLabel: "M"},
+		{value: "Tue", label: "Tue", mobileLabel: "T"},
+		{value: "Wed", label: "Wed", mobileLabel: "W"},
+		{value: "Thu", label: "Thu", mobileLabel: "T"},
+		{value: "Fri", label: "Fri", mobileLabel: "F"},
+		{value: "Sat", label: "Sat", mobileLabel: "S"},
+		{value: "Sun", label: "Sun", mobileLabel: "S"},
+	];
 
 	useEffect(() => {
 		fetchTasks();
@@ -164,17 +173,18 @@ const TaskSection = ({title}) => {
 					</button>
 				</div>
 				<div className="flex bg-gray-100 dark:bg-neutral-800 p-1 rounded-lg">
-					{daysOfWeek.map((day) => (
+					{days.map((day) => (
 						<button
-							key={day}
-							onClick={() => setActiveDay(day)}
+							key={day.value}
+							onClick={() => setActiveDay(day.value)}
 							className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-colors ${
-								activeDay === day
+								activeDay === day.value
 									? "bg-white dark:bg-neutral-700 text-gray-900 dark:text-white shadow-sm"
 									: "text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white"
 							}`}
 						>
-							{day}
+							<span className="sm:hidden">{day.mobileLabel}</span>
+							<span className="hidden sm:inline">{day.label}</span>
 						</button>
 					))}
 				</div>
