@@ -17,7 +17,7 @@ const TaskSection = ({title}) => {
 	const [editingTask, setEditingTask] = useState(null);
 	const [editText, setEditText] = useState("");
 	const [openDropdown, setOpenDropdown] = useState(null);
-	const [activeDay, setActiveDay] = useState("Mon");
+	const [activeDay, setActiveDay] = useState("Daily");
 	const dropdownRef = useRef(null);
 	const router = useRouter();
 
