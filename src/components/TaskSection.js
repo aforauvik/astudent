@@ -192,7 +192,7 @@ const TaskSection = ({title}) => {
 
 			<ul className="mt-4">
 				<h2 className="text-sm font-semibold my-4 text-gray-500 dark:text-neutral-400">
-					{activeDay}'s To Do
+					{activeDay}
 				</h2>
 				{filteredTasks.length === 0 ? (
 					<li className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
