@@ -143,7 +143,7 @@ const ProgressSection = () => {
 					Projects, Topics, Assignments
 				</h2>
 				{subjects.map((subject) => (
-					<div key={subject.id} className="flex items-center mt-2 space-x-2">
+					<div key={subject.id} className="flex items-start mt-2 space-x-2">
 						{editingSubject === subject.id ? (
 							<>
 								<input
@@ -167,13 +167,78 @@ const ProgressSection = () => {
 							</>
 						) : (
 							<>
-								<p className={listStyle}>{subject.name}</p>
+								<div className="flex-1">
+									<p className={listStyle}>{subject.name}</p>
+									<div className="max-w-40 flex items-center gap-x-1 mt-2">
+										{/* Progress bar segments */}
+										<div
+											className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
+												subject.progress >= 25
+													? "bg-blue-600 dark:bg-blue-500"
+													: "bg-gray-300 dark:bg-neutral-600"
+											}`}
+											role="progressbar"
+											aria-valuenow={Math.min(subject.progress, 25)}
+											aria-valuemin="0"
+											aria-valuemax="25"
+										></div>
+										<div
+											className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
+												subject.progress >= 50
+													? "bg-blue-600 dark:bg-blue-500"
+													: "bg-gray-300 dark:bg-neutral-600"
+											}`}
+											role="progressbar"
+											aria-valuenow={Math.min(
+												Math.max(subject.progress - 25, 0),
+												25
+											)}
+											aria-valuemin="0"
+											aria-valuemax="25"
+										></div>
+										<div
+											className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
+												subject.progress >= 75
+													? "bg-blue-600 dark:bg-blue-500"
+													: "bg-gray-300 dark:bg-neutral-600"
+											}`}
+											role="progressbar"
+											aria-valuenow={Math.min(
+												Math.max(subject.progress - 50, 0),
+												25
+											)}
+											aria-valuemin="0"
+											aria-valuemax="25"
+										></div>
+										<div
+											className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
+												subject.progress >= 100
+													? "bg-blue-600 dark:bg-blue-500"
+													: "bg-gray-300 dark:bg-neutral-600"
+											}`}
+											role="progressbar"
+											aria-valuenow={Math.min(
+												Math.max(subject.progress - 75, 0),
+												25
+											)}
+											aria-valuemin="0"
+											aria-valuemax="25"
+										></div>
+										<div>
+											<div className="w-10 text-end">
+												<span className="text-sm text-gray-800 dark:text-white">
+													{subject.progress}%
+												</span>
+											</div>
+										</div>
+									</div>
+								</div>
 								<select
 									value={subject.progress}
 									onChange={(e) =>
 										updateProgress(subject.id, Number(e.target.value))
 									}
-									className="py-3 px-4 block w-24 border-gray-200 rounded-lg font-semibold text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-400"
+									className="py-3 px-4 block w-20 border-gray-200 rounded-lg font-semibold text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-400"
 								>
 									<option value={0}>0%</option>
 									<option value={25}>25%</option>
@@ -181,83 +246,6 @@ const ProgressSection = () => {
 									<option value={75}>75%</option>
 									<option value={100}>100%</option>
 								</select>
-
-								<div className="relative w-16 hidden sm:block">
-									<svg
-										className="size-full -rotate-90"
-										viewBox="0 0 36 36"
-										xmlns="http://www.w3.org/2000/svg"
-									>
-										<circle
-											cx="18"
-											cy="18"
-											r="16"
-											fill="none"
-											className="stroke-current text-gray-200 dark:text-neutral-800"
-											strokeWidth="2"
-										></circle>
-
-										<circle
-											cx="18"
-											cy="18"
-											r="16"
-											fill="none"
-											className={`stroke-current ${
-												subject.progress >= 90
-													? "text-green-600"
-													: subject.progress >= 75
-													? "text-yellow-500"
-													: subject.progress >= 50
-													? "text-orange-500"
-													: subject.progress >= 25
-													? "text-red-500"
-													: "text-gray-500"
-											} dark:${
-												subject.progress >= 90
-													? "text-green-600"
-													: subject.progress >= 75
-													? "text-yellow-500"
-													: subject.progress >= 50
-													? "text-orange-500"
-													: subject.progress >= 25
-													? "text-red-500"
-													: "text-gray-500"
-											}`}
-											strokeWidth="2"
-											strokeDasharray="100"
-											strokeDashoffset={100 - subject.progress}
-											strokeLinecap="round"
-										></circle>
-									</svg>
-
-									<div className="absolute top-[45%] start-1/2 transform -translate-y-1/2 -translate-x-1/2 ">
-										<span
-											className={`text-center text-[9px] font-bold ${
-												subject.progress >= 90
-													? "text-green-600"
-													: subject.progress >= 75
-													? "text-yellow-500"
-													: subject.progress >= 50
-													? "text-orange-500"
-													: subject.progress >= 25
-													? "text-red-500"
-													: "text-gray-500"
-											} dark:${
-												subject.progress >= 90
-													? "text-green-600"
-													: subject.progress >= 75
-													? "text-yellow-500"
-													: subject.progress >= 50
-													? "text-orange-500"
-													: subject.progress >= 25
-													? "text-red-500"
-													: "text-gray-500"
-											}`}
-										>
-											{subject.progress}%
-										</span>
-									</div>
-								</div>
 								<div
 									className="relative inline-flex"
 									ref={openDropdown === subject.id ? dropdownRef : null}
