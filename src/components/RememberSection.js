@@ -151,92 +151,98 @@ const RememberSection = ({title}) => {
 				<h2 className="text-sm font-semibold my-4 text-gray-500 dark:text-neutral-400 ">
 					Things To Remember
 				</h2>
-				{tasks.map((task, index) => (
-					<li key={task.id} className="flex items-center mt-2 space-x-2">
-						{editingTask === task.id ? (
-							<>
-								<input
-									type="text"
-									value={editText}
-									onChange={(e) => setEditText(e.target.value)}
-									className={inputStyle}
-								/>
-								<button className={secondaryButton} onClick={updateTask}>
-									Save
-								</button>
-								<button
-									className={destructiveButton}
-									onClick={() => {
-										setEditingTask(null);
-										setOpenDropdown(null);
-									}}
-								>
-									Cancel
-								</button>
-							</>
-						) : (
-							<>
-								<label className={listStyle}>
-									<span
-										className={`text-sm text-neutral-950 dark:text-white ${
-											task.done ? "line-through" : ""
-										}`}
-									>
-										{task.text}
-									</span>
-									<input
-										type="checkbox"
-										className="shrink-0 ms-auto mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
-										checked={task.done}
-										onChange={() => toggleTask(index)}
-									/>
-								</label>
-								<div
-									className="relative inline-flex"
-									ref={openDropdown === task.id ? dropdownRef : null}
-								>
-									<button
-										onClick={() => toggleDropdown(task.id)}
-										className="flex justify-center items-center size-9 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-950 dark:border-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
-									>
-										<svg
-											className="flex-none size-4 text-gray-600 dark:text-neutral-500"
-											xmlns="http://www.w3.org/2000/svg"
-											width="24"
-											height="24"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											strokeWidth="2"
-											strokeLinecap="round"
-											strokeLinejoin="round"
-										>
-											<circle cx="12" cy="12" r="1" />
-											<circle cx="12" cy="5" r="1" />
-											<circle cx="12" cy="19" r="1" />
-										</svg>
-									</button>
-									{openDropdown === task.id && (
-										<div className="p-1 space-y-0.5 absolute z-50 right-10 mt-2 bg-white shadow-md rounded-lg dark:bg-neutral-800 dark:border dark:border-neutral-700">
-											<button
-												className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-blue-600 dark:hover:bg-blue-800/30 dark:hover:text-blue-600 dark:focus:bg-blue-800/30"
-												onClick={() => startEditing(task)}
-											>
-												Edit
-											</button>
-											<button
-												className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-red-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-red-500 dark:hover:bg-red-800/30 dark:hover:text-red-500 dark:focus:bg-red-800/30"
-												onClick={() => deleteTask(task.id)}
-											>
-												Delete
-											</button>
-										</div>
-									)}
-								</div>
-							</>
-						)}
+				{tasks.length === 0 ? (
+					<li className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
+						No things to remember yet! Add your first reminder above.
 					</li>
-				))}
+				) : (
+					tasks.map((task, index) => (
+						<li key={task.id} className="flex items-center mt-2 space-x-2">
+							{editingTask === task.id ? (
+								<>
+									<input
+										type="text"
+										value={editText}
+										onChange={(e) => setEditText(e.target.value)}
+										className={inputStyle}
+									/>
+									<button className={secondaryButton} onClick={updateTask}>
+										Save
+									</button>
+									<button
+										className={destructiveButton}
+										onClick={() => {
+											setEditingTask(null);
+											setOpenDropdown(null);
+										}}
+									>
+										Cancel
+									</button>
+								</>
+							) : (
+								<>
+									<label className={listStyle}>
+										<span
+											className={`text-sm text-neutral-950 dark:text-white ${
+												task.done ? "line-through" : ""
+											}`}
+										>
+											{task.text}
+										</span>
+										<input
+											type="checkbox"
+											className="shrink-0 ms-auto mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
+											checked={task.done}
+											onChange={() => toggleTask(index)}
+										/>
+									</label>
+									<div
+										className="relative inline-flex"
+										ref={openDropdown === task.id ? dropdownRef : null}
+									>
+										<button
+											onClick={() => toggleDropdown(task.id)}
+											className="flex justify-center items-center size-9 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-950 dark:border-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+										>
+											<svg
+												className="flex-none size-4 text-gray-600 dark:text-neutral-500"
+												xmlns="http://www.w3.org/2000/svg"
+												width="24"
+												height="24"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
+											>
+												<circle cx="12" cy="12" r="1" />
+												<circle cx="12" cy="5" r="1" />
+												<circle cx="12" cy="19" r="1" />
+											</svg>
+										</button>
+										{openDropdown === task.id && (
+											<div className="p-1 space-y-0.5 absolute z-50 right-10 mt-2 bg-white shadow-md rounded-lg dark:bg-neutral-800 dark:border dark:border-neutral-700">
+												<button
+													className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-blue-600 dark:hover:bg-blue-800/30 dark:hover:text-blue-600 dark:focus:bg-blue-800/30"
+													onClick={() => startEditing(task)}
+												>
+													Edit
+												</button>
+												<button
+													className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-red-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-red-500 dark:hover:bg-red-800/30 dark:hover:text-red-500 dark:focus:bg-red-800/30"
+													onClick={() => deleteTask(task.id)}
+												>
+													Delete
+												</button>
+											</div>
+										)}
+									</div>
+								</>
+							)}
+						</li>
+					))
+				)}
 			</ul>
 		</div>
 	);

@@ -196,7 +196,7 @@ const TaskSection = ({title}) => {
 				</h2>
 				{filteredTasks.length === 0 ? (
 					<li className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
-						No tasks for {activeDay}. Add a task above!
+						No tasks yet. Add a task above!
 					</li>
 				) : (
 					filteredTasks.map((task) => (

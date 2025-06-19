@@ -142,156 +142,166 @@ const ProgressSection = () => {
 				<h2 className="text-sm font-semibold my-4 text-gray-500 dark:text-neutral-400 ">
 					Projects, Topics, Assignments
 				</h2>
-				{subjects.map((subject) => (
-					<div key={subject.id} className="flex items-start mt-2 space-x-2">
-						{editingSubject === subject.id ? (
-							<>
-								<input
-									type="text"
-									value={editText}
-									className={inputStyle}
-									onChange={(e) => setEditText(e.target.value)}
-								/>
-								<button className={secondaryButton} onClick={updateSubject}>
-									Save
-								</button>
-								<button
-									className={destructiveButton}
-									onClick={() => {
-										setEditingSubject(null);
-										setOpenDropdown(null);
-									}}
-								>
-									Cancel
-								</button>
-							</>
-						) : (
-							<>
-								<div className="flex-1">
-									<p className={listStyle}>{subject.name}</p>
-									<div className="max-w-40 flex items-center gap-x-1 mt-2">
-										{/* Progress bar segments */}
-										<div
-											className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
-												subject.progress >= 25
-													? "bg-blue-600 dark:bg-blue-500"
-													: "bg-gray-300 dark:bg-neutral-600"
-											}`}
-											role="progressbar"
-											aria-valuenow={Math.min(subject.progress, 25)}
-											aria-valuemin="0"
-											aria-valuemax="25"
-										></div>
-										<div
-											className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
-												subject.progress >= 50
-													? "bg-blue-600 dark:bg-blue-500"
-													: "bg-gray-300 dark:bg-neutral-600"
-											}`}
-											role="progressbar"
-											aria-valuenow={Math.min(
-												Math.max(subject.progress - 25, 0),
-												25
-											)}
-											aria-valuemin="0"
-											aria-valuemax="25"
-										></div>
-										<div
-											className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
-												subject.progress >= 75
-													? "bg-blue-600 dark:bg-blue-500"
-													: "bg-gray-300 dark:bg-neutral-600"
-											}`}
-											role="progressbar"
-											aria-valuenow={Math.min(
-												Math.max(subject.progress - 50, 0),
-												25
-											)}
-											aria-valuemin="0"
-											aria-valuemax="25"
-										></div>
-										<div
-											className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
-												subject.progress >= 100
-													? "bg-blue-600 dark:bg-blue-500"
-													: "bg-gray-300 dark:bg-neutral-600"
-											}`}
-											role="progressbar"
-											aria-valuenow={Math.min(
-												Math.max(subject.progress - 75, 0),
-												25
-											)}
-											aria-valuemin="0"
-											aria-valuemax="25"
-										></div>
-										<div>
-											<div className="w-10 text-end">
-												<span className="text-sm text-gray-800 dark:text-white">
-													{subject.progress}%
-												</span>
+
+				{subjects.length === 0 ? (
+					<div className="flex flex-col items-center justify-center py-8 text-center text-gray-400 dark:text-neutral-500">
+						<p className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
+							No progress tracked yet! Add your first project or assignment
+							above.
+						</p>
+					</div>
+				) : (
+					subjects.map((subject) => (
+						<div key={subject.id} className="flex items-start mt-2 space-x-2">
+							{editingSubject === subject.id ? (
+								<>
+									<input
+										type="text"
+										value={editText}
+										className={inputStyle}
+										onChange={(e) => setEditText(e.target.value)}
+									/>
+									<button className={secondaryButton} onClick={updateSubject}>
+										Save
+									</button>
+									<button
+										className={destructiveButton}
+										onClick={() => {
+											setEditingSubject(null);
+											setOpenDropdown(null);
+										}}
+									>
+										Cancel
+									</button>
+								</>
+							) : (
+								<>
+									<div className="flex-1">
+										<p className={listStyle}>{subject.name}</p>
+										<div className="max-w-40 flex items-center gap-x-1 mt-2">
+											{/* Progress bar segments */}
+											<div
+												className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
+													subject.progress >= 25
+														? "bg-blue-600 dark:bg-blue-500"
+														: "bg-gray-300 dark:bg-neutral-600"
+												}`}
+												role="progressbar"
+												aria-valuenow={Math.min(subject.progress, 25)}
+												aria-valuemin="0"
+												aria-valuemax="25"
+											></div>
+											<div
+												className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
+													subject.progress >= 50
+														? "bg-blue-600 dark:bg-blue-500"
+														: "bg-gray-300 dark:bg-neutral-600"
+												}`}
+												role="progressbar"
+												aria-valuenow={Math.min(
+													Math.max(subject.progress - 25, 0),
+													25
+												)}
+												aria-valuemin="0"
+												aria-valuemax="25"
+											></div>
+											<div
+												className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
+													subject.progress >= 75
+														? "bg-blue-600 dark:bg-blue-500"
+														: "bg-gray-300 dark:bg-neutral-600"
+												}`}
+												role="progressbar"
+												aria-valuenow={Math.min(
+													Math.max(subject.progress - 50, 0),
+													25
+												)}
+												aria-valuemin="0"
+												aria-valuemax="25"
+											></div>
+											<div
+												className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
+													subject.progress >= 100
+														? "bg-blue-600 dark:bg-blue-500"
+														: "bg-gray-300 dark:bg-neutral-600"
+												}`}
+												role="progressbar"
+												aria-valuenow={Math.min(
+													Math.max(subject.progress - 75, 0),
+													25
+												)}
+												aria-valuemin="0"
+												aria-valuemax="25"
+											></div>
+											<div>
+												<div className="w-10 text-end">
+													<span className="text-sm text-gray-800 dark:text-white">
+														{subject.progress}%
+													</span>
+												</div>
 											</div>
 										</div>
 									</div>
-								</div>
-								<select
-									value={subject.progress}
-									onChange={(e) =>
-										updateProgress(subject.id, Number(e.target.value))
-									}
-									className="py-3 px-4 block w-20 border-gray-200 rounded-lg font-semibold text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-400"
-								>
-									<option value={0}>0%</option>
-									<option value={25}>25%</option>
-									<option value={50}>50%</option>
-									<option value={75}>75%</option>
-									<option value={100}>100%</option>
-								</select>
-								<div
-									className="relative inline-flex"
-									ref={openDropdown === subject.id ? dropdownRef : null}
-								>
-									<button
-										onClick={() => toggleDropdown(subject.id)}
-										className="flex justify-center items-center size-9 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-950 dark:border-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+									<select
+										value={subject.progress}
+										onChange={(e) =>
+											updateProgress(subject.id, Number(e.target.value))
+										}
+										className="py-3 px-4 block w-20 border-gray-200 rounded-lg font-semibold text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-400"
 									>
-										<svg
-											className="flex-none size-4 text-gray-600 dark:text-neutral-500"
-											xmlns="http://www.w3.org/2000/svg"
-											width="24"
-											height="24"
-											viewBox="0 0 24 24"
-											fill="none"
-											stroke="currentColor"
-											strokeWidth="2"
-											strokeLinecap="round"
-											strokeLinejoin="round"
+										<option value={0}>0%</option>
+										<option value={25}>25%</option>
+										<option value={50}>50%</option>
+										<option value={75}>75%</option>
+										<option value={100}>100%</option>
+									</select>
+									<div
+										className="relative inline-flex"
+										ref={openDropdown === subject.id ? dropdownRef : null}
+									>
+										<button
+											onClick={() => toggleDropdown(subject.id)}
+											className="flex justify-center items-center size-9 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-950 dark:border-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
 										>
-											<circle cx="12" cy="12" r="1" />
-											<circle cx="12" cy="5" r="1" />
-											<circle cx="12" cy="19" r="1" />
-										</svg>
-									</button>
-									{openDropdown === subject.id && (
-										<div className="p-1 space-y-0.5 absolute z-50 right-10 mt-2 bg-white shadow-md rounded-lg dark:bg-neutral-800 dark:border dark:border-neutral-700">
-											<button
-												className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-blue-600 dark:hover:bg-blue-800/30 dark:hover:text-blue-600 dark:focus:bg-blue-800/30"
-												onClick={() => startEditing(subject)}
+											<svg
+												className="flex-none size-4 text-gray-600 dark:text-neutral-500"
+												xmlns="http://www.w3.org/2000/svg"
+												width="24"
+												height="24"
+												viewBox="0 0 24 24"
+												fill="none"
+												stroke="currentColor"
+												strokeWidth="2"
+												strokeLinecap="round"
+												strokeLinejoin="round"
 											>
-												Edit
-											</button>
-											<button
-												className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-red-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-red-500 dark:hover:bg-red-800/30 dark:hover:text-red-500 dark:focus:bg-red-800/30"
-												onClick={() => deleteSubject(subject.id)}
-											>
-												Delete
-											</button>
-										</div>
-									)}
-								</div>
-							</>
-						)}
-					</div>
-				))}
+												<circle cx="12" cy="12" r="1" />
+												<circle cx="12" cy="5" r="1" />
+												<circle cx="12" cy="19" r="1" />
+											</svg>
+										</button>
+										{openDropdown === subject.id && (
+											<div className="p-1 space-y-0.5 absolute z-50 right-10 mt-2 bg-white shadow-md rounded-lg dark:bg-neutral-800 dark:border dark:border-neutral-700">
+												<button
+													className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-blue-600 dark:hover:bg-blue-800/30 dark:hover:text-blue-600 dark:focus:bg-blue-800/30"
+													onClick={() => startEditing(subject)}
+												>
+													Edit
+												</button>
+												<button
+													className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-red-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-red-500 dark:hover:bg-red-800/30 dark:hover:text-red-500 dark:focus:bg-red-800/30"
+													onClick={() => deleteSubject(subject.id)}
+												>
+													Delete
+												</button>
+											</div>
+										)}
+									</div>
+								</>
+							)}
+						</div>
+					))
+				)}
 			</div>
 		</div>
 	);
