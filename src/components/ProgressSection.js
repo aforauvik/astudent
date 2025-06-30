@@ -178,61 +178,49 @@ const ProgressSection = () => {
 								<>
 									<div className="flex-1">
 										<p className={listStyle}>{subject.name}</p>
-										<div className="max-w-40 flex items-center gap-x-1 mt-2">
-											{/* Progress bar segments */}
-											<div
-												className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
-													subject.progress >= 25
-														? "bg-blue-600 dark:bg-blue-500"
-														: "bg-gray-300 dark:bg-neutral-600"
-												}`}
-												role="progressbar"
-												aria-valuenow={Math.min(subject.progress, 25)}
-												aria-valuemin="0"
-												aria-valuemax="25"
-											></div>
-											<div
-												className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
-													subject.progress >= 50
-														? "bg-blue-600 dark:bg-blue-500"
-														: "bg-gray-300 dark:bg-neutral-600"
-												}`}
-												role="progressbar"
-												aria-valuenow={Math.min(
-													Math.max(subject.progress - 25, 0),
-													25
-												)}
-												aria-valuemin="0"
-												aria-valuemax="25"
-											></div>
-											<div
-												className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
-													subject.progress >= 75
-														? "bg-blue-600 dark:bg-blue-500"
-														: "bg-gray-300 dark:bg-neutral-600"
-												}`}
-												role="progressbar"
-												aria-valuenow={Math.min(
-													Math.max(subject.progress - 50, 0),
-													25
-												)}
-												aria-valuemin="0"
-												aria-valuemax="25"
-											></div>
-											<div
-												className={`w-full h-2.5 flex flex-col justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${
-													subject.progress >= 100
-														? "bg-blue-600 dark:bg-blue-500"
-														: "bg-gray-300 dark:bg-neutral-600"
-												}`}
-												role="progressbar"
-												aria-valuenow={Math.min(
-													Math.max(subject.progress - 75, 0),
-													25
-												)}
-												aria-valuemin="0"
-												aria-valuemax="25"
-											></div>
+										<div className="max-w-full flex items-center gap-x-1 mt-2">
+											{/* Progress bar segments - 10 bars with 10% each */}
+											{Array.from({length: 10}, (_, index) => {
+												const segmentValue = (index + 1) * 10;
+												const isFilled = subject.progress >= segmentValue;
+												const isCompleted = subject.progress === 100;
+
+												// Determine color based on progress
+												let colorClass = "bg-gray-300 dark:bg-neutral-600"; // Default for unfilled
+												if (isFilled) {
+													if (isCompleted) {
+														colorClass = "bg-emerald-600 dark:bg-emerald-600"; // 100% - Green
+													} else if (
+														subject.progress >= 61 &&
+														subject.progress <= 90
+													) {
+														colorClass = "bg-green-500 dark:bg-green-500"; // 70-90% - Orange
+													} else if (
+														subject.progress >= 41 &&
+														subject.progress <= 60
+													) {
+														colorClass = "bg-teal-500 dark:bg-teal-500"; // 31-70% - Yellow
+													} else if (subject.progress <= 40) {
+														colorClass = "bg-red-600 dark:bg-red-500"; // 0-30% - Red
+													} else {
+														colorClass = "bg-blue-600 dark:bg-blue-500"; // 91-99% - Blue
+													}
+												}
+
+												return (
+													<div
+														key={index}
+														className={`w-full h-2.5 flex flex-col rounded-sm justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${colorClass}`}
+														role="progressbar"
+														aria-valuenow={Math.min(
+															Math.max(subject.progress - index * 10, 0),
+															10
+														)}
+														aria-valuemin="0"
+														aria-valuemax="10"
+													></div>
+												);
+											})}
 											<div>
 												<div className="w-10 text-end">
 													<span className="text-sm text-gray-800 dark:text-white">
@@ -249,11 +237,11 @@ const ProgressSection = () => {
 										}
 										className="py-3 px-4 block w-20 border-gray-200 rounded-lg font-semibold text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-400"
 									>
-										<option value={0}>0%</option>
-										<option value={25}>25%</option>
-										<option value={50}>50%</option>
-										<option value={75}>75%</option>
-										<option value={100}>100%</option>
+										{Array.from({length: 11}, (_, index) => (
+											<option key={index} value={index * 10}>
+												{index * 10}%
+											</option>
+										))}
 									</select>
 									<div
 										className="relative inline-flex"
