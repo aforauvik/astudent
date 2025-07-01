@@ -312,7 +312,7 @@ const TaskSection = ({title}) => {
 				{/* Show today's tasks under Daily, if any and if activeDay is Daily */}
 				{activeDay === "Daily" && todayTasks.length > 0 && (
 					<>
-						<h3 className="text-sm font-semibold mt-6 mb-2 text-gray-400 dark:text-neutral-400">
+						<h3 className="text-sm font-semibold mt-6 mb-4 text-gray-400 dark:text-neutral-400">
 							{todayFullDayName} Only
 						</h3>
 						{todayTasks.map((task) => (
