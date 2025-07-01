@@ -194,12 +194,12 @@ const ProgressSection = () => {
 														subject.progress >= 61 &&
 														subject.progress <= 90
 													) {
-														colorClass = "bg-green-500 dark:bg-green-500"; // 70-90% - Orange
+														colorClass = "bg-teal-500 dark:bg-teal-500"; // 70-90% - Orange
 													} else if (
 														subject.progress >= 41 &&
 														subject.progress <= 60
 													) {
-														colorClass = "bg-teal-500 dark:bg-teal-500"; // 31-70% - Yellow
+														colorClass = "bg-orange-400 dark:bg-orange-400"; // 31-70% - Yellow
 													} else if (subject.progress <= 40) {
 														colorClass = "bg-red-600 dark:bg-red-500"; // 0-30% - Red
 													} else {
