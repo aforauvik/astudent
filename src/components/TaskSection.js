@@ -23,13 +23,13 @@ const TaskSection = ({title}) => {
 
 	const days = [
 		{value: "Daily", label: "Daily", mobileLabel: "D"},
-		{value: "Mon", label: "Mon", mobileLabel: "M"},
-		{value: "Tue", label: "Tue", mobileLabel: "T"},
-		{value: "Wed", label: "Wed", mobileLabel: "W"},
-		{value: "Thu", label: "Thu", mobileLabel: "T"},
-		{value: "Fri", label: "Fri", mobileLabel: "F"},
-		{value: "Sat", label: "Sat", mobileLabel: "S"},
-		{value: "Sun", label: "Sun", mobileLabel: "S"},
+		{value: "Mon", label: "Monday", mobileLabel: "M"},
+		{value: "Tue", label: "Tuesday", mobileLabel: "T"},
+		{value: "Wed", label: "Wednesday", mobileLabel: "W"},
+		{value: "Thu", label: "Thursday", mobileLabel: "T"},
+		{value: "Fri", label: "Friday", mobileLabel: "F"},
+		{value: "Sat", label: "Saturday", mobileLabel: "S"},
+		{value: "Sun", label: "Sunday", mobileLabel: "S"},
 	];
 
 	useEffect(() => {
@@ -156,6 +156,26 @@ const TaskSection = ({title}) => {
 	// Filter tasks for the active day
 	const filteredTasks = tasks.filter((task) => task.day_of_week === activeDay);
 
+	// Get today's day string (e.g., 'Tue')
+	const jsDayToString = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+	const fullDayNames = [
+		"Sunday",
+		"Monday",
+		"Tuesday",
+		"Wednesday",
+		"Thursday",
+		"Friday",
+		"Saturday",
+	];
+	const today = new Date();
+	const todayDayString = jsDayToString[today.getDay()];
+	const todayFullDayName = fullDayNames[today.getDay()];
+
+	// Filter tasks for today (e.g., 'Tue'), but not 'Daily'
+	const todayTasks = tasks.filter(
+		(task) => task.day_of_week === todayDayString && activeDay === "Daily"
+	);
+
 	return (
 		<div className="p-4 mt-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-950 dark:border-neutral-900 sm:w-1/2 w-full">
 			<h2 className="text-lg font-semibold mb-4">🔥 Do</h2>
@@ -184,7 +204,7 @@ const TaskSection = ({title}) => {
 							}`}
 						>
 							<span className="sm:hidden">{day.mobileLabel}</span>
-							<span className="hidden sm:inline">{day.label}</span>
+							<span className="hidden sm:inline">{day.value}</span>
 						</button>
 					))}
 				</div>
@@ -192,7 +212,9 @@ const TaskSection = ({title}) => {
 
 			<ul className="mt-4">
 				<h2 className="text-sm font-semibold my-4 text-gray-500 dark:text-neutral-400">
-					{activeDay}
+					{activeDay === "Daily"
+						? "Daily"
+						: days.find((day) => day.value === activeDay)?.label}
 				</h2>
 				{filteredTasks.length === 0 ? (
 					<li className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
@@ -285,6 +307,101 @@ const TaskSection = ({title}) => {
 							)}
 						</li>
 					))
+				)}
+
+				{/* Show today's tasks under Daily, if any and if activeDay is Daily */}
+				{activeDay === "Daily" && todayTasks.length > 0 && (
+					<>
+						<h3 className="text-sm font-semibold mt-6 mb-2 text-gray-400 dark:text-neutral-400">
+							{todayFullDayName} Only
+						</h3>
+						{todayTasks.map((task) => (
+							<li key={task.id} className="flex items-center mt-2 space-x-2">
+								{editingTask === task.id ? (
+									<>
+										<input
+											type="text"
+											value={editText}
+											onChange={(e) => setEditText(e.target.value)}
+											className={inputStyle}
+										/>
+										<button className={secondaryButton} onClick={updateTask}>
+											Save
+										</button>
+										<button
+											className={destructiveButton}
+											onClick={() => {
+												setEditingTask(null);
+												setOpenDropdown(null);
+											}}
+										>
+											Cancel
+										</button>
+									</>
+								) : (
+									<>
+										<label className={listStyle}>
+											<span
+												className={`text-sm text-gray-950 dark:text-white ${
+													task.done ? "line-through" : ""
+												}`}
+											>
+												{task.text}
+											</span>
+											<input
+												type="checkbox"
+												className="shrink-0 ms-auto mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
+												checked={task.done}
+												onChange={() => toggleTask(task.id)}
+											/>
+										</label>
+										<div
+											className="relative inline-flex"
+											ref={openDropdown === task.id ? dropdownRef : null}
+										>
+											<button
+												onClick={() => toggleDropdown(task.id)}
+												className="flex justify-center items-center size-9 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-950 dark:border-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+											>
+												<svg
+													className="flex-none size-4 text-gray-600 dark:text-neutral-500"
+													xmlns="http://www.w3.org/2000/svg"
+													width="24"
+													height="24"
+													viewBox="0 0 24 24"
+													fill="none"
+													stroke="currentColor"
+													strokeWidth="2"
+													strokeLinecap="round"
+													strokeLinejoin="round"
+												>
+													<circle cx="12" cy="12" r="1" />
+													<circle cx="12" cy="5" r="1" />
+													<circle cx="12" cy="19" r="1" />
+												</svg>
+											</button>
+											{openDropdown === task.id && (
+												<div className="p-1 space-y-0.5 absolute z-50 right-10 mt-2 bg-white shadow-md rounded-lg dark:bg-neutral-800 dark:border dark:border-neutral-700">
+													<button
+														className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-blue-600 dark:hover:bg-blue-800/30 dark:hover:text-blue-600 dark:focus:bg-blue-800/30"
+														onClick={() => startEditing(task)}
+													>
+														Edit
+													</button>
+													<button
+														className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-red-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-red-500 dark:hover:bg-red-800/30 dark:hover:text-red-500 dark:focus:bg-red-800/30"
+														onClick={() => deleteTask(task.id)}
+													>
+														Delete
+													</button>
+												</div>
+											)}
+										</div>
+									</>
+								)}
+							</li>
+						))}
+					</>
 				)}
 			</ul>
 		</div>
