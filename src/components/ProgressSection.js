@@ -189,19 +189,19 @@ const ProgressSection = () => {
 												let colorClass = "bg-gray-300 dark:bg-neutral-600"; // Default for unfilled
 												if (isFilled) {
 													if (isCompleted) {
-														colorClass = "bg-emerald-600 dark:bg-emerald-600"; // 100% - Green
+														colorClass = "bg-green-600 dark:bg-green-600"; // 100% - Green
 													} else if (
 														subject.progress >= 61 &&
 														subject.progress <= 90
 													) {
-														colorClass = "bg-teal-500 dark:bg-teal-500"; // 70-90% - Orange
+														colorClass = "bg-teal-500 dark:bg-teal-600"; // 70-90% - Teal
 													} else if (
 														subject.progress >= 41 &&
 														subject.progress <= 60
 													) {
-														colorClass = "bg-orange-400 dark:bg-orange-400"; // 31-70% - Yellow
+														colorClass = "bg-orange-400 dark:bg-orange-400"; // 31-70% - Orange
 													} else if (subject.progress <= 40) {
-														colorClass = "bg-red-600 dark:bg-red-500"; // 0-30% - Red
+														colorClass = "bg-red-500 dark:bg-red-500"; // 0-30% - Red
 													} else {
 														colorClass = "bg-blue-600 dark:bg-blue-500"; // 91-99% - Blue
 													}
