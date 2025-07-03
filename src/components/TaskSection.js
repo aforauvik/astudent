@@ -186,7 +186,7 @@ const TaskSection = ({title}) => {
 				<h2 className="text-lg font-semibold mb-4">🔥 Do</h2>
 				<button
 					onClick={() => setShowTimerModal(true)}
-					className="px-1 py-1 rounded-md border border-red-500/25 bg-red-500/25 text-red-500 font-semibold hover:bg-red-700 transition"
+					className="px-1 py-1 rounded-md border border-emerald-500/25 bg-emerald-500/25 text-emerald-500 font-semibold hover:bg-emerald-700 transition"
 				>
 					<LuAlarmClock className="text-lg" />
 				</button>
