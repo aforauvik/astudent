@@ -1,8 +1,9 @@
 "use client";
 
 import CurrentDateTime from "./TimeDate";
+import TimerModal from "./TimerModal";
 
-import {useEffect, useState} from "react";
+import {useEffect, useState, Fragment, useRef} from "react";
 import {useRouter} from "next/navigation";
 import {supabase} from "@/lib/supabaseClient";
 import {
@@ -16,9 +17,13 @@ import {
 	logo,
 } from "../app/AllStyles";
 
+import {LuAlarmClock} from "react-icons/lu";
+import {IoIosCloseCircle} from "react-icons/io";
+
 export default function TestNavBar() {
 	const router = useRouter();
 	const [user, setUser] = useState(null);
+	const [showTimerModal, setShowTimerModal] = useState(false);
 
 	useEffect(() => {
 		const checkUser = async () => {
@@ -48,7 +53,7 @@ export default function TestNavBar() {
 
 					{/* <CurrentDateTime /> */}
 				</div>
-				<div className="flex flex-wrap gap-2 items-center justify-between">
+				<div className="flex flex-wrap gap-4 items-center justify-between">
 					{user && (
 						<p className="text-base font-semibold text-neutral-400">
 							💪 Welcome,{" "}

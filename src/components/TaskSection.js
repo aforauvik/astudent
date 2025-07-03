@@ -2,6 +2,7 @@
 import {useState, useEffect, useRef} from "react";
 import {useRouter} from "next/navigation";
 import {supabase} from "../lib/supabaseClient";
+import TimerModal from "./TimerModal";
 import {
 	inputStyle,
 	smallButton,
@@ -11,6 +12,8 @@ import {
 	listStyle,
 } from "../app/AllStyles";
 
+import {LuAlarmClock} from "react-icons/lu";
+
 const TaskSection = ({title}) => {
 	const [tasks, setTasks] = useState([]);
 	const [taskInput, setTaskInput] = useState("");
@@ -18,6 +21,7 @@ const TaskSection = ({title}) => {
 	const [editText, setEditText] = useState("");
 	const [openDropdown, setOpenDropdown] = useState(null);
 	const [activeDay, setActiveDay] = useState("Daily");
+	const [showTimerModal, setShowTimerModal] = useState(false);
 	const dropdownRef = useRef(null);
 	const router = useRouter();
 
@@ -178,7 +182,16 @@ const TaskSection = ({title}) => {
 
 	return (
 		<div className="p-4 mt-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-950 dark:border-neutral-900 sm:w-1/2 w-full">
-			<h2 className="text-lg font-semibold mb-4">🔥 Do</h2>
+			<div className="flex flex-row justify-between items-start">
+				<h2 className="text-lg font-semibold mb-4">🔥 Do</h2>
+				<button
+					onClick={() => setShowTimerModal(true)}
+					className="px-1 py-1 rounded-md border border-red-500/25 bg-red-500/25 text-red-500 font-semibold hover:bg-red-700 transition"
+				>
+					<LuAlarmClock className="text-lg" />
+				</button>
+			</div>
+
 			<div className="flex flex-col space-y-3">
 				<div className="flex rounded-lg shadow-sm mb-4">
 					<input
@@ -404,6 +417,10 @@ const TaskSection = ({title}) => {
 					</>
 				)}
 			</ul>
+			<TimerModal
+				isOpen={showTimerModal}
+				onClose={() => setShowTimerModal(false)}
+			/>
 		</div>
 	);
 };
