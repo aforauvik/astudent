@@ -255,7 +255,7 @@ const TaskSection = ({title}) => {
 				<div className="flex items-center gap-2">
 					{/* Timer display */}
 					{timerStart && timerDuration && (
-						<div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
+						<div className="flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
 							<span className="text-sm font-mono text-emerald-700 dark:text-emerald-300">
 								{formatTime(timeLeft)}
 							</span>
@@ -272,9 +272,9 @@ const TaskSection = ({title}) => {
 					<div className="relative">
 						<button
 							onClick={() => setShowTimerOptions(!showTimerOptions)}
-							className="px-1 py-1 rounded-md border border-emerald-500/25 bg-emerald-500/25 text-emerald-500 font-semibold hover:bg-emerald-700 transition"
+							className="px-1 py-1 rounded-md border border-emerald-500/25 bg-emerald-900/30 text-emerald-500 font-semibold hover:bg-emerald-900 transition"
 						>
-							<LuAlarmClock className="text-lg" />
+							<LuAlarmClock className="text-xl" />
 						</button>
 
 						{/* Timer options dropdown */}
