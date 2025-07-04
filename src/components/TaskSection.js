@@ -2,7 +2,7 @@
 import {useState, useEffect, useRef} from "react";
 import {useRouter} from "next/navigation";
 import {supabase} from "../lib/supabaseClient";
-import TimerModal from "./TimerModal";
+
 import {
 	inputStyle,
 	smallButton,
@@ -21,8 +21,16 @@ const TaskSection = ({title}) => {
 	const [editText, setEditText] = useState("");
 	const [openDropdown, setOpenDropdown] = useState(null);
 	const [activeDay, setActiveDay] = useState("Daily");
-	const [showTimerModal, setShowTimerModal] = useState(false);
+
+	// Timer state
+	const [timerDuration, setTimerDuration] = useState(null);
+	const [timerStart, setTimerStart] = useState(null);
+	const [timerInterval, setTimerInterval] = useState(null);
+	const [timerNow, setTimerNow] = useState(Date.now());
+	const [showTimerOptions, setShowTimerOptions] = useState(false);
+
 	const dropdownRef = useRef(null);
+	const audioRef = useRef(null);
 	const router = useRouter();
 
 	const days = [
@@ -35,6 +43,43 @@ const TaskSection = ({title}) => {
 		{value: "Sat", label: "Saturday", mobileLabel: "S"},
 		{value: "Sun", label: "Sunday", mobileLabel: "S"},
 	];
+
+	// Timer options
+	const timerOptions = [
+		{label: "30m", value: 30 * 60},
+		{label: "1h", value: 60 * 60},
+		{label: "1.5h", value: 90 * 60},
+		{label: "2h", value: 120 * 60},
+	];
+
+	// Timer effect
+	useEffect(() => {
+		if (timerStart && timerDuration) {
+			const interval = setInterval(() => {
+				setTimerNow(Date.now());
+			}, 1000);
+			setTimerInterval(interval);
+			return () => clearInterval(interval);
+		} else if (timerInterval) {
+			clearInterval(timerInterval);
+			setTimerInterval(null);
+		}
+	}, [timerStart, timerDuration]);
+
+	// Calculate time passed and left
+	let timePassed = 0;
+	let timeLeft = 0;
+	if (timerStart && timerDuration) {
+		timePassed = Math.floor((timerNow - timerStart) / 1000);
+		timeLeft = Math.max(timerDuration - timePassed, 0);
+	}
+
+	// Play sound when timer is up
+	useEffect(() => {
+		if (timeLeft === 0 && timerStart && audioRef.current) {
+			audioRef.current.play();
+		}
+	}, [timeLeft, timerStart]);
 
 	useEffect(() => {
 		fetchTasks();
@@ -180,17 +225,74 @@ const TaskSection = ({title}) => {
 		(task) => task.day_of_week === todayDayString && activeDay === "Daily"
 	);
 
+	const startTimer = (duration) => {
+		setTimerDuration(duration);
+		setTimerStart(Date.now());
+		setTimerNow(Date.now());
+		setShowTimerOptions(false);
+	};
+
+	const resetTimer = () => {
+		setTimerDuration(null);
+		setTimerStart(null);
+		setTimerNow(Date.now());
+		setShowTimerOptions(false);
+	};
+
+	const formatTime = (seconds) => {
+		const m = Math.floor(seconds / 60)
+			.toString()
+			.padStart(2, "0");
+		const s = (seconds % 60).toString().padStart(2, "0");
+		return `${m}:${s}`;
+	};
+
 	return (
 		<div className="p-4 mt-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-950 dark:border-neutral-900 sm:w-1/2 w-full">
 			<div className="flex flex-row justify-between items-start">
 				<h2 className="text-lg font-semibold mb-4">🔥 Do</h2>
 
-				<button
-					onClick={() => setShowTimerModal(true)}
-					className="px-1 py-1 rounded-md border border-emerald-500/25 bg-emerald-500/25 text-emerald-500 font-semibold hover:bg-emerald-700 transition"
-				>
-					<LuAlarmClock className="text-lg" />
-				</button>
+				<div className="flex items-center gap-2">
+					{/* Timer display */}
+					{timerStart && timerDuration && (
+						<div className="flex items-center gap-2 px-3 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
+							<span className="text-sm font-mono text-emerald-700 dark:text-emerald-300">
+								{formatTime(timeLeft)}
+							</span>
+							<button
+								onClick={resetTimer}
+								className="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200"
+							>
+								✕
+							</button>
+						</div>
+					)}
+
+					{/* Timer button */}
+					<div className="relative">
+						<button
+							onClick={() => setShowTimerOptions(!showTimerOptions)}
+							className="px-1 py-1 rounded-md border border-emerald-500/25 bg-emerald-500/25 text-emerald-500 font-semibold hover:bg-emerald-700 transition"
+						>
+							<LuAlarmClock className="text-lg" />
+						</button>
+
+						{/* Timer options dropdown */}
+						{showTimerOptions && (
+							<div className="absolute right-0 top-full mt-1 bg-white dark:bg-neutral-800 border border-gray-200 dark:border-neutral-700 rounded-lg shadow-lg z-10 min-w-[120px]">
+								{timerOptions.map((opt) => (
+									<button
+										key={opt.value}
+										onClick={() => startTimer(opt.value)}
+										className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-neutral-700 first:rounded-t-lg last:rounded-b-lg"
+									>
+										{opt.label}
+									</button>
+								))}
+							</div>
+						)}
+					</div>
+				</div>
 			</div>
 
 			<div className="flex flex-col space-y-3">
@@ -418,10 +520,7 @@ const TaskSection = ({title}) => {
 					</>
 				)}
 			</ul>
-			<TimerModal
-				isOpen={showTimerModal}
-				onClose={() => setShowTimerModal(false)}
-			/>
+			<audio ref={audioRef} src="/time-up.mp3" preload="auto" />
 		</div>
 	);
 };
