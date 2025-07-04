@@ -28,6 +28,8 @@ const TaskSection = ({title}) => {
 	const [timerInterval, setTimerInterval] = useState(null);
 	const [timerNow, setTimerNow] = useState(Date.now());
 	const [showTimerOptions, setShowTimerOptions] = useState(false);
+	const [isPaused, setIsPaused] = useState(false);
+	const [pausedTime, setPausedTime] = useState(0);
 
 	const dropdownRef = useRef(null);
 	const audioRef = useRef(null);
@@ -55,7 +57,7 @@ const TaskSection = ({title}) => {
 
 	// Timer effect
 	useEffect(() => {
-		if (timerStart && timerDuration) {
+		if (timerStart && timerDuration && !isPaused) {
 			const interval = setInterval(() => {
 				setTimerNow(Date.now());
 			}, 1000);
@@ -65,13 +67,13 @@ const TaskSection = ({title}) => {
 			clearInterval(timerInterval);
 			setTimerInterval(null);
 		}
-	}, [timerStart, timerDuration]);
+	}, [timerStart, timerDuration, isPaused]);
 
 	// Calculate time passed and left
 	let timePassed = 0;
 	let timeLeft = 0;
 	if (timerStart && timerDuration) {
-		timePassed = Math.floor((timerNow - timerStart) / 1000);
+		timePassed = Math.floor((timerNow - timerStart) / 1000) - pausedTime;
 		timeLeft = Math.max(timerDuration - timePassed, 0);
 	}
 
@@ -231,6 +233,8 @@ const TaskSection = ({title}) => {
 		setTimerStart(Date.now());
 		setTimerNow(Date.now());
 		setShowTimerOptions(false);
+		setIsPaused(false);
+		setPausedTime(0);
 	};
 
 	const resetTimer = () => {
@@ -238,6 +242,22 @@ const TaskSection = ({title}) => {
 		setTimerStart(null);
 		setTimerNow(Date.now());
 		setShowTimerOptions(false);
+		setIsPaused(false);
+		setPausedTime(0);
+	};
+
+	const pauseTimer = () => {
+		if (timerStart && timerDuration && !isPaused) {
+			setIsPaused(true);
+			setPausedTime(pausedTime + Math.floor((Date.now() - timerNow) / 1000));
+		}
+	};
+
+	const resumeTimer = () => {
+		if (timerStart && timerDuration && isPaused) {
+			setIsPaused(false);
+			setTimerNow(Date.now());
+		}
 	};
 
 	const formatTime = (seconds) => {
@@ -261,8 +281,16 @@ const TaskSection = ({title}) => {
 								{formatTime(timeLeft)}
 							</span>
 							<button
+								onClick={isPaused ? resumeTimer : pauseTimer}
+								className="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200"
+								title={isPaused ? "Resume" : "Pause"}
+							>
+								{isPaused ? "▶" : "⏸"}
+							</button>
+							<button
 								onClick={resetTimer}
 								className="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200"
+								title="Stop"
 							>
 								✕
 							</button>
