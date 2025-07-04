@@ -13,6 +13,8 @@ import {
 } from "../app/AllStyles";
 
 import {LuAlarmClock} from "react-icons/lu";
+import {TiMediaPause} from "react-icons/ti";
+import {TiMediaPlay} from "react-icons/ti";
 
 const TaskSection = ({title}) => {
 	const [tasks, setTasks] = useState([]);
@@ -285,7 +287,7 @@ const TaskSection = ({title}) => {
 								className="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200"
 								title={isPaused ? "Resume" : "Pause"}
 							>
-								{isPaused ? "▶" : "⏸"}
+								{isPaused ? <TiMediaPlay /> : <TiMediaPause />}
 							</button>
 							<button
 								onClick={resetTimer}
