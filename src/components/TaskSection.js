@@ -46,6 +46,7 @@ const TaskSection = ({title}) => {
 
 	// Timer options
 	const timerOptions = [
+		{label: "15m", value: 15 * 60},
 		{label: "30m", value: 30 * 60},
 		{label: "1h", value: 60 * 60},
 		{label: "1.5h", value: 90 * 60},
