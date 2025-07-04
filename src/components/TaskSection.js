@@ -184,6 +184,7 @@ const TaskSection = ({title}) => {
 		<div className="p-4 mt-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-950 dark:border-neutral-900 sm:w-1/2 w-full">
 			<div className="flex flex-row justify-between items-start">
 				<h2 className="text-lg font-semibold mb-4">🔥 Do</h2>
+
 				<button
 					onClick={() => setShowTimerModal(true)}
 					className="px-1 py-1 rounded-md border border-emerald-500/25 bg-emerald-500/25 text-emerald-500 font-semibold hover:bg-emerald-700 transition"
