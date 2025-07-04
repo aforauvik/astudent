@@ -19,11 +19,13 @@ import {
 
 import {LuAlarmClock} from "react-icons/lu";
 import {IoIosCloseCircle} from "react-icons/io";
+import {HiMenu, HiX} from "react-icons/hi";
 
 export default function TestNavBar() {
 	const router = useRouter();
 	const [user, setUser] = useState(null);
 	const [showTimerModal, setShowTimerModal] = useState(false);
+	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
 	useEffect(() => {
 		const checkUser = async () => {
@@ -56,26 +58,52 @@ export default function TestNavBar() {
 				<div className="flex flex-wrap gap-4 items-center justify-between">
 					{user && (
 						<p className="text-base font-semibold text-neutral-400">
-							💪 Welcome,{" "}
+							👋{" "}
 							<span className="dark:text-white">
 								{user.user_metadata?.display_name || user.email}
 							</span>
 						</p>
 					)}
 					<div className="sm:order-3 flex items-center gap-x-2">
-						{user ? (
-							<button onClick={handleSignOut} className={destructiveButton}>
-								Sign Out
-							</button>
-						) : (
-							<button
-								onClick={() => router.push("/signin")}
-								className={secondaryButton}
-							>
-								Sign In
-							</button>
-						)}
+						{/* Hamburger menu for all screen sizes */}
+						<button
+							onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+							className="p-2 rounded-md text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-neutral-800"
+							aria-label="Open menu"
+						>
+							{mobileMenuOpen ? (
+								<HiX className="text-2xl" />
+							) : (
+								<HiMenu className="text-2xl" />
+							)}
+						</button>
 					</div>
+					{/* Dropdown menu for all screen sizes */}
+					{mobileMenuOpen && (
+						<div className="absolute top-16 right-4 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg shadow-lg z-50 min-w-[80px] flex flex-col p-1 gap-2">
+							{user ? (
+								<button
+									onClick={() => {
+										setMobileMenuOpen(false);
+										handleSignOut();
+									}}
+									className={destructiveButton}
+								>
+									Sign Out
+								</button>
+							) : (
+								<button
+									onClick={() => {
+										setMobileMenuOpen(false);
+										router.push("/signin");
+									}}
+									className={secondaryButton}
+								>
+									Sign In
+								</button>
+							)}
+						</div>
+					)}
 				</div>
 			</nav>
 		</header>
