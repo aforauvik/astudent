@@ -15,6 +15,9 @@ import {
 import {LuAlarmClock} from "react-icons/lu";
 import {TiMediaPause} from "react-icons/ti";
 import {TiMediaPlay} from "react-icons/ti";
+import {TiMediaStop} from "react-icons/ti";
+import {IoIosCloseCircle} from "react-icons/io";
+import {IoPlayCircle} from "react-icons/io5";
 
 const TaskSection = ({title}) => {
 	const [tasks, setTasks] = useState([]);
@@ -279,9 +282,6 @@ const TaskSection = ({title}) => {
 					{/* Timer display */}
 					{timerStart && timerDuration && (
 						<div className="flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
-							<span className="text-sm font-mono text-emerald-700 dark:text-emerald-300">
-								{formatTime(timeLeft)}
-							</span>
 							<button
 								onClick={isPaused ? resumeTimer : pauseTimer}
 								className="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200"
@@ -289,12 +289,16 @@ const TaskSection = ({title}) => {
 							>
 								{isPaused ? <TiMediaPlay /> : <TiMediaPause />}
 							</button>
+							<span className="text-sm font-mono text-emerald-700 dark:text-emerald-300">
+								{formatTime(timeLeft)}
+							</span>
+
 							<button
 								onClick={resetTimer}
-								className="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200"
+								className="text-xs text-er-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200"
 								title="Stop"
 							>
-								✕
+								<IoIosCloseCircle />
 							</button>
 						</div>
 					)}
