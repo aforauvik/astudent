@@ -306,7 +306,7 @@ const TaskSection = ({title}) => {
 
 							<button
 								onClick={resetTimer}
-								className="text-xs text-er-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200"
+								className="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200"
 								title="Stop"
 							>
 								<IoIosCloseCircle />
@@ -318,7 +318,7 @@ const TaskSection = ({title}) => {
 					<div className="relative">
 						<button
 							onClick={() => setShowTimerOptions(!showTimerOptions)}
-							className="px-1 py-1 rounded-md border border-emerald-500/25 bg-emerald-400/30 dark:bg-emerald-900/30 text-emerald-500  font-semibold hover:bg-emerald-900 transition"
+							className="px-1 py-1 rounded-md border border-emerald-500/25 bg-emerald-400/30 dark:bg-emerald-900/30 text-emerald-500  font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-900 transition"
 						>
 							<LuAlarmClock className="text-xl" />
 						</button>

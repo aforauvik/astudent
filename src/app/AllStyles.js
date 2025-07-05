@@ -1,5 +1,5 @@
 export const inputStyle =
-	"py-3 px-4 block w-full border-gray-200 rounded-s-lg text-lg focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:text-white dark:focus:border-neutral-700 dark:focus:ring-neutral-700";
+	"py-3 px-4 block w-full border-gray-200 rounded-s-lg text-base focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-700 dark:text-neutral-400 dark:placeholder-neutral-500 dark:text-white dark:focus:border-neutral-700 dark:focus:ring-neutral-700";
 
 export const listStyle =
 	"flex p-3 w-full bg-white border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-neutral-900 dark:border-neutral-900 dark:text-white";
@@ -16,7 +16,7 @@ export const destructiveButton =
 	"py-3 px-4 inline-flex items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent text-red-500 hover:bg-red-100 focus:outline-none focus:bg-red-100 hover:text-red-800 disabled:opacity-50 disabled:pointer-events-none dark:hover:bg-red-800/30 dark:hover:text-red-400 dark:focus:bg-red-800/30 dark:focus:text-red-400";
 
 export const addButton =
-	"py-3 px-6 inline-flex justify-center items-center gap-x-2 text-sm font-bold uppercase rounded-e-md border border-transparent bg-blue-600 text-white font-bold hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none";
+	"py-2 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-bold uppercase rounded-e-md border border-transparent bg-blue-600 text-white font-bold hover:bg-blue-700 focus:outline-none focus:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none";
 
 export const logOut =
 	"py-3 px-4 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-red-500 text-red-500 hover:border-red-400 hover:text-red-400 focus:outline-none focus:border-red-400 focus:text-red-400 disabled:opacity-50 disabled:pointer-events-none";
