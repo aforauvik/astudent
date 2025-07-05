@@ -222,8 +222,8 @@ const ProgressSection = () => {
 												);
 											})}
 											<div>
-												<div className="w-10 text-end">
-													<span className="text-sm text-gray-800 dark:text-white">
+												<div className="w-10 text-end justify-center items-center">
+													<span className="text-sm text-gray-800 dark:text-gray-500">
 														{subject.progress}%
 													</span>
 												</div>
