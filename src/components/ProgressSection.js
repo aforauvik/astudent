@@ -210,7 +210,7 @@ const ProgressSection = () => {
 												return (
 													<div
 														key={index}
-														className={`w-full h-2.5 flex flex-col rounded-sm justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${colorClass}`}
+														className={`w-full h-2 flex flex-col rounded-sm justify-center overflow-hidden text-xs text-white text-center whitespace-nowrap transition duration-500 ${colorClass}`}
 														role="progressbar"
 														aria-valuenow={Math.min(
 															Math.max(subject.progress - index * 10, 0),
