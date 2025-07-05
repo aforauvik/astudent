@@ -35,6 +35,7 @@ const TaskSection = ({title}) => {
 	const [showTimerOptions, setShowTimerOptions] = useState(false);
 	const [isPaused, setIsPaused] = useState(false);
 	const [pausedTime, setPausedTime] = useState(0);
+	const [pauseStartTime, setPauseStartTime] = useState(null);
 
 	const dropdownRef = useRef(null);
 	const audioRef = useRef(null);
@@ -78,7 +79,11 @@ const TaskSection = ({title}) => {
 	let timePassed = 0;
 	let timeLeft = 0;
 	if (timerStart && timerDuration) {
-		timePassed = Math.floor((timerNow - timerStart) / 1000) - pausedTime;
+		const currentPausedTime =
+			isPaused && pauseStartTime
+				? pausedTime + Math.floor((Date.now() - pauseStartTime) / 1000)
+				: pausedTime;
+		timePassed = Math.floor((timerNow - timerStart) / 1000) - currentPausedTime;
 		timeLeft = Math.max(timerDuration - timePassed, 0);
 	}
 
@@ -240,6 +245,7 @@ const TaskSection = ({title}) => {
 		setShowTimerOptions(false);
 		setIsPaused(false);
 		setPausedTime(0);
+		setPauseStartTime(null);
 	};
 
 	const resetTimer = () => {
@@ -249,19 +255,24 @@ const TaskSection = ({title}) => {
 		setShowTimerOptions(false);
 		setIsPaused(false);
 		setPausedTime(0);
+		setPauseStartTime(null);
 	};
 
 	const pauseTimer = () => {
 		if (timerStart && timerDuration && !isPaused) {
 			setIsPaused(true);
-			setPausedTime(pausedTime + Math.floor((Date.now() - timerNow) / 1000));
+			setPauseStartTime(Date.now());
 		}
 	};
 
 	const resumeTimer = () => {
 		if (timerStart && timerDuration && isPaused) {
 			setIsPaused(false);
-			setTimerNow(Date.now());
+			// Add the time that was paused to the total paused time
+			const pauseDuration = Math.floor((Date.now() - pauseStartTime) / 1000);
+			setPausedTime(pausedTime + pauseDuration);
+			setPauseStartTime(null);
+			setTimerNow(Date.now()); // Update timer now to current time
 		}
 	};
 
