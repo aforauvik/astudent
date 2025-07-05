@@ -318,7 +318,7 @@ const TaskSection = ({title}) => {
 					<div className="relative">
 						<button
 							onClick={() => setShowTimerOptions(!showTimerOptions)}
-							className="px-1 py-1 rounded-md border border-emerald-500/25 bg-emerald-900/30 text-emerald-500 font-semibold hover:bg-emerald-900 transition"
+							className="px-1 py-1 rounded-md border border-emerald-500/25 bg-emerald-400/30 dark:bg-emerald-900/30 text-emerald-500  font-semibold hover:bg-emerald-900 transition"
 						>
 							<LuAlarmClock className="text-xl" />
 						</button>
