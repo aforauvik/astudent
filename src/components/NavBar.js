@@ -6,6 +6,7 @@ import TimerModal from "./TimerModal";
 import {useEffect, useState, Fragment, useRef} from "react";
 import {useRouter} from "next/navigation";
 import {supabase} from "@/lib/supabaseClient";
+import {IoMdPower} from "react-icons/io";
 import {
 	inputStyle,
 	smallButton,
@@ -89,6 +90,9 @@ export default function TestNavBar() {
 									}}
 									className={destructiveButton}
 								>
+									<div className="bg-red-500/25 p-1 rounded-lg">
+										<IoMdPower className="text-base" />
+									</div>
 									Sign Out
 								</button>
 							) : (
