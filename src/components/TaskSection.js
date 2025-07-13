@@ -281,6 +281,7 @@ const TaskSection = ({title}) => {
 			.from("tasks")
 			.select("*")
 			.eq("user_id", userId)
+			.order("sort_order", {ascending: true})
 			.order("created_at", {ascending: true});
 
 		if (!error) {
@@ -299,12 +300,18 @@ const TaskSection = ({title}) => {
 		const userId = userData.user.id;
 
 		if (taskInput.trim()) {
+			// Get the highest sort_order value to place new task at the end
+			const maxSortOrder =
+				tasks.length > 0 ? Math.max(...tasks.map((t) => t.sort_order || 0)) : 0;
+			const newSortOrder = maxSortOrder + 1;
+
 			const {error} = await supabase.from("tasks").insert([
 				{
 					text: taskInput,
 					done: false,
 					user_id: userId,
 					day_of_week: activeDay,
+					sort_order: newSortOrder,
 				},
 			]);
 
@@ -371,16 +378,32 @@ const TaskSection = ({title}) => {
 	};
 
 	// Handle drag end
-	const handleDragEnd = (event) => {
+	const handleDragEnd = async (event) => {
 		const {active, over} = event;
 
 		if (active.id !== over.id) {
-			setTasks((items) => {
-				const oldIndex = items.findIndex((item) => item.id === active.id);
-				const newIndex = items.findIndex((item) => item.id === over.id);
+			const oldIndex = tasks.findIndex((item) => item.id === active.id);
+			const newIndex = tasks.findIndex((item) => item.id === over.id);
 
-				return arrayMove(items, oldIndex, newIndex);
-			});
+			// Update local state immediately for responsive UI
+			setTasks((items) => arrayMove(items, oldIndex, newIndex));
+
+			// Update sort_order in database
+			const reorderedTasks = arrayMove(tasks, oldIndex, newIndex);
+
+			// Update sort_order for all affected items
+			const updates = reorderedTasks.map((task, index) => ({
+				id: task.id,
+				sort_order: index + 1,
+			}));
+
+			// Batch update all items with new sort_order values
+			for (const update of updates) {
+				await supabase
+					.from("tasks")
+					.update({sort_order: update.sort_order})
+					.eq("id", update.id);
+			}
 		}
 	};
 

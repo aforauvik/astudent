@@ -249,6 +249,7 @@ const ProgressSection = () => {
 			.from("progress")
 			.select("*")
 			.eq("user_id", userId)
+			.order("sort_order", {ascending: true})
 			.order("created_at", {ascending: true});
 		if (!error) setSubjects(data || []);
 	};
@@ -264,9 +265,21 @@ const ProgressSection = () => {
 		const userId = userData.user.id;
 
 		if (subjectInput.trim()) {
-			const {error} = await supabase
-				.from("progress")
-				.insert([{name: subjectInput, progress: 0, user_id: userId}]);
+			// Get the highest sort_order value to place new subject at the end
+			const maxSortOrder =
+				subjects.length > 0
+					? Math.max(...subjects.map((s) => s.sort_order || 0))
+					: 0;
+			const newSortOrder = maxSortOrder + 1;
+
+			const {error} = await supabase.from("progress").insert([
+				{
+					name: subjectInput,
+					progress: 0,
+					user_id: userId,
+					sort_order: newSortOrder,
+				},
+			]);
 			if (!error) {
 				fetchSubjects();
 				setSubjectInput("");
@@ -322,16 +335,32 @@ const ProgressSection = () => {
 	};
 
 	// Handle drag end
-	const handleDragEnd = (event) => {
+	const handleDragEnd = async (event) => {
 		const {active, over} = event;
 
 		if (active.id !== over.id) {
-			setSubjects((items) => {
-				const oldIndex = items.findIndex((item) => item.id === active.id);
-				const newIndex = items.findIndex((item) => item.id === over.id);
+			const oldIndex = subjects.findIndex((item) => item.id === active.id);
+			const newIndex = subjects.findIndex((item) => item.id === over.id);
 
-				return arrayMove(items, oldIndex, newIndex);
-			});
+			// Update local state immediately for responsive UI
+			setSubjects((items) => arrayMove(items, oldIndex, newIndex));
+
+			// Update sort_order in database
+			const reorderedSubjects = arrayMove(subjects, oldIndex, newIndex);
+
+			// Update sort_order for all affected items
+			const updates = reorderedSubjects.map((subject, index) => ({
+				id: subject.id,
+				sort_order: index + 1,
+			}));
+
+			// Batch update all items with new sort_order values
+			for (const update of updates) {
+				await supabase
+					.from("progress")
+					.update({sort_order: update.sort_order})
+					.eq("id", update.id);
+			}
 		}
 	};
 
