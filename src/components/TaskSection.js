@@ -2,6 +2,22 @@
 import {useState, useEffect, useRef} from "react";
 import {useRouter} from "next/navigation";
 import {supabase} from "../lib/supabaseClient";
+import {
+	DndContext,
+	closestCenter,
+	KeyboardSensor,
+	PointerSensor,
+	useSensor,
+	useSensors,
+} from "@dnd-kit/core";
+import {
+	arrayMove,
+	SortableContext,
+	sortableKeyboardCoordinates,
+	verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {useSortable} from "@dnd-kit/sortable";
+import {CSS} from "@dnd-kit/utilities";
 
 import {
 	inputStyle,
@@ -18,6 +34,134 @@ import {TiMediaPlay} from "react-icons/ti";
 import {TiMediaStop} from "react-icons/ti";
 import {IoIosCloseCircle} from "react-icons/io";
 import {IoPlayCircle} from "react-icons/io5";
+import {LuGripVertical} from "react-icons/lu";
+
+// Sortable Task Item Component
+const SortableTaskItem = ({
+	task,
+	editingTask,
+	editText,
+	setEditText,
+	updateTask,
+	setEditingTask,
+	setOpenDropdown,
+	toggleTask,
+	toggleDropdown,
+	openDropdown,
+	dropdownRef,
+	inputStyle,
+	secondaryButton,
+	destructiveButton,
+	listStyle,
+}) => {
+	const {attributes, listeners, setNodeRef, transform, transition, isDragging} =
+		useSortable({id: task.id});
+
+	const style = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+		opacity: isDragging ? 0.5 : 1,
+	};
+
+	return (
+		<li
+			ref={setNodeRef}
+			style={style}
+			className="flex items-center mt-2 space-x-2"
+		>
+			{editingTask === task.id ? (
+				<>
+					<input
+						type="text"
+						value={editText}
+						onChange={(e) => setEditText(e.target.value)}
+						className={inputStyle}
+					/>
+					<button className={secondaryButton} onClick={updateTask}>
+						Save
+					</button>
+					<button
+						className={destructiveButton}
+						onClick={() => {
+							setEditingTask(null);
+							setOpenDropdown(null);
+						}}
+					>
+						Cancel
+					</button>
+				</>
+			) : (
+				<>
+					<button
+						{...attributes}
+						{...listeners}
+						className="p-1 text-gray-400 hover:text-gray-600 dark:text-neutral-500 dark:hover:text-neutral-300 cursor-grab active:cursor-grabbing"
+						title="Drag to reorder"
+					>
+						<LuGripVertical size={16} />
+					</button>
+					<label className={listStyle}>
+						<span
+							className={`text-sm text-gray-950 dark:text-white ${
+								task.done ? "line-through" : ""
+							}`}
+						>
+							{task.text}
+						</span>
+						<input
+							type="checkbox"
+							className="shrink-0 ms-auto mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
+							checked={task.done}
+							onChange={() => toggleTask(task.id)}
+						/>
+					</label>
+					<div
+						className="relative inline-flex"
+						ref={openDropdown === task.id ? dropdownRef : null}
+					>
+						<button
+							onClick={() => toggleDropdown(task.id)}
+							className="flex justify-center items-center size-9 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-950 dark:border-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+						>
+							<svg
+								className="flex-none size-4 text-gray-600 dark:text-neutral-500"
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							>
+								<circle cx="12" cy="12" r="1" />
+								<circle cx="12" cy="5" r="1" />
+								<circle cx="12" cy="19" r="1" />
+							</svg>
+						</button>
+						{openDropdown === task.id && (
+							<div className="p-1 space-y-0.5 absolute z-50 right-10 mt-2 bg-white shadow-md rounded-lg dark:bg-neutral-800 dark:border dark:border-neutral-700">
+								<button
+									className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-blue-600 dark:hover:bg-blue-800/30 dark:hover:text-blue-600 dark:focus:bg-blue-800/30"
+									onClick={() => startEditing(task)}
+								>
+									Edit
+								</button>
+								<button
+									className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-red-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-red-500 dark:hover:bg-red-800/30 dark:hover:text-red-500 dark:focus:bg-red-800/30"
+									onClick={() => deleteTask(task.id)}
+								>
+									Delete
+								</button>
+							</div>
+						)}
+					</div>
+				</>
+			)}
+		</li>
+	);
+};
 
 const TaskSection = ({title}) => {
 	const [tasks, setTasks] = useState([]);
@@ -41,6 +185,14 @@ const TaskSection = ({title}) => {
 	const audioRef = useRef(null);
 	const router = useRouter();
 
+	// DnD sensors
+	const sensors = useSensors(
+		useSensor(PointerSensor),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		})
+	);
+
 	const days = [
 		{value: "Daily", label: "Daily", mobileLabel: "D"},
 		{value: "Mon", label: "Monday", mobileLabel: "M"},
@@ -54,6 +206,7 @@ const TaskSection = ({title}) => {
 
 	// Timer options
 	const timerOptions = [
+		{label: "5m", value: 5 * 60},
 		{label: "15m", value: 15 * 60},
 		{label: "30m", value: 30 * 60},
 		{label: "1h", value: 60 * 60},
@@ -215,6 +368,20 @@ const TaskSection = ({title}) => {
 		setOpenDropdown(openDropdown === taskId ? null : taskId);
 	};
 
+	// Handle drag end
+	const handleDragEnd = (event) => {
+		const {active, over} = event;
+
+		if (active.id !== over.id) {
+			setTasks((items) => {
+				const oldIndex = items.findIndex((item) => item.id === active.id);
+				const newIndex = items.findIndex((item) => item.id === over.id);
+
+				return arrayMove(items, oldIndex, newIndex);
+			});
+		}
+	};
+
 	// Filter tasks for the active day
 	const filteredTasks = tasks.filter((task) => task.day_of_week === activeDay);
 
@@ -372,103 +539,52 @@ const TaskSection = ({title}) => {
 				</div>
 			</div>
 
-			<ul className="mt-4">
+			<div className="mt-4">
 				<h2 className="text-sm font-semibold my-4 text-gray-500 dark:text-neutral-400">
 					{activeDay === "Daily"
 						? "Daily"
 						: days.find((day) => day.value === activeDay)?.label}
 				</h2>
 				{filteredTasks.length === 0 ? (
-					<li className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
+					<div className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
 						No tasks yet. Add a task above!
-					</li>
+					</div>
 				) : (
-					filteredTasks.map((task) => (
-						<li key={task.id} className="flex items-center mt-2 space-x-2">
-							{editingTask === task.id ? (
-								<>
-									<input
-										type="text"
-										value={editText}
-										onChange={(e) => setEditText(e.target.value)}
-										className={inputStyle}
+					<DndContext
+						sensors={sensors}
+						collisionDetection={closestCenter}
+						onDragEnd={handleDragEnd}
+					>
+						<SortableContext
+							items={filteredTasks.map((task) => task.id)}
+							strategy={verticalListSortingStrategy}
+						>
+							<ul>
+								{filteredTasks.map((task) => (
+									<SortableTaskItem
+										key={task.id}
+										task={task}
+										editingTask={editingTask}
+										editText={editText}
+										setEditText={setEditText}
+										updateTask={updateTask}
+										setEditingTask={setEditingTask}
+										setOpenDropdown={setOpenDropdown}
+										toggleTask={toggleTask}
+										toggleDropdown={toggleDropdown}
+										openDropdown={openDropdown}
+										dropdownRef={dropdownRef}
+										inputStyle={inputStyle}
+										secondaryButton={secondaryButton}
+										destructiveButton={destructiveButton}
+										listStyle={listStyle}
+										startEditing={startEditing}
+										deleteTask={deleteTask}
 									/>
-									<button className={secondaryButton} onClick={updateTask}>
-										Save
-									</button>
-									<button
-										className={destructiveButton}
-										onClick={() => {
-											setEditingTask(null);
-											setOpenDropdown(null);
-										}}
-									>
-										Cancel
-									</button>
-								</>
-							) : (
-								<>
-									<label className={listStyle}>
-										<span
-											className={`text-sm text-gray-950 dark:text-white ${
-												task.done ? "line-through" : ""
-											}`}
-										>
-											{task.text}
-										</span>
-										<input
-											type="checkbox"
-											className="shrink-0 ms-auto mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
-											checked={task.done}
-											onChange={() => toggleTask(task.id)}
-										/>
-									</label>
-									<div
-										className="relative inline-flex"
-										ref={openDropdown === task.id ? dropdownRef : null}
-									>
-										<button
-											onClick={() => toggleDropdown(task.id)}
-											className="flex justify-center items-center size-9 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-950 dark:border-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
-										>
-											<svg
-												className="flex-none size-4 text-gray-600 dark:text-neutral-500"
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												strokeWidth="2"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-											>
-												<circle cx="12" cy="12" r="1" />
-												<circle cx="12" cy="5" r="1" />
-												<circle cx="12" cy="19" r="1" />
-											</svg>
-										</button>
-										{openDropdown === task.id && (
-											<div className="p-1 space-y-0.5 absolute z-50 right-10 mt-2 bg-white shadow-md rounded-lg dark:bg-neutral-800 dark:border dark:border-neutral-700">
-												<button
-													className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-blue-600 dark:hover:bg-blue-800/30 dark:hover:text-blue-600 dark:focus:bg-blue-800/30"
-													onClick={() => startEditing(task)}
-												>
-													Edit
-												</button>
-												<button
-													className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-red-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-red-500 dark:hover:bg-red-800/30 dark:hover:text-red-500 dark:focus:bg-red-800/30"
-													onClick={() => deleteTask(task.id)}
-												>
-													Delete
-												</button>
-											</div>
-										)}
-									</div>
-								</>
-							)}
-						</li>
-					))
+								))}
+							</ul>
+						</SortableContext>
+					</DndContext>
 				)}
 
 				{/* Show today's tasks under Daily, if any and if activeDay is Daily */}
@@ -477,95 +593,44 @@ const TaskSection = ({title}) => {
 						<h3 className="text-sm font-semibold mt-6 mb-4 text-gray-400 dark:text-neutral-400">
 							{todayFullDayName} Only
 						</h3>
-						{todayTasks.map((task) => (
-							<li key={task.id} className="flex items-center mt-2 space-x-2">
-								{editingTask === task.id ? (
-									<>
-										<input
-											type="text"
-											value={editText}
-											onChange={(e) => setEditText(e.target.value)}
-											className={inputStyle}
+						<DndContext
+							sensors={sensors}
+							collisionDetection={closestCenter}
+							onDragEnd={handleDragEnd}
+						>
+							<SortableContext
+								items={todayTasks.map((task) => task.id)}
+								strategy={verticalListSortingStrategy}
+							>
+								<ul>
+									{todayTasks.map((task) => (
+										<SortableTaskItem
+											key={task.id}
+											task={task}
+											editingTask={editingTask}
+											editText={editText}
+											setEditText={setEditText}
+											updateTask={updateTask}
+											setEditingTask={setEditingTask}
+											setOpenDropdown={setOpenDropdown}
+											toggleTask={toggleTask}
+											toggleDropdown={toggleDropdown}
+											openDropdown={openDropdown}
+											dropdownRef={dropdownRef}
+											inputStyle={inputStyle}
+											secondaryButton={secondaryButton}
+											destructiveButton={destructiveButton}
+											listStyle={listStyle}
+											startEditing={startEditing}
+											deleteTask={deleteTask}
 										/>
-										<button className={secondaryButton} onClick={updateTask}>
-											Save
-										</button>
-										<button
-											className={destructiveButton}
-											onClick={() => {
-												setEditingTask(null);
-												setOpenDropdown(null);
-											}}
-										>
-											Cancel
-										</button>
-									</>
-								) : (
-									<>
-										<label className={listStyle}>
-											<span
-												className={`text-sm text-gray-950 dark:text-white ${
-													task.done ? "line-through" : ""
-												}`}
-											>
-												{task.text}
-											</span>
-											<input
-												type="checkbox"
-												className="shrink-0 ms-auto mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
-												checked={task.done}
-												onChange={() => toggleTask(task.id)}
-											/>
-										</label>
-										<div
-											className="relative inline-flex"
-											ref={openDropdown === task.id ? dropdownRef : null}
-										>
-											<button
-												onClick={() => toggleDropdown(task.id)}
-												className="flex justify-center items-center size-9 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-950 dark:border-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
-											>
-												<svg
-													className="flex-none size-4 text-gray-600 dark:text-neutral-500"
-													xmlns="http://www.w3.org/2000/svg"
-													width="24"
-													height="24"
-													viewBox="0 0 24 24"
-													fill="none"
-													stroke="currentColor"
-													strokeWidth="2"
-													strokeLinecap="round"
-													strokeLinejoin="round"
-												>
-													<circle cx="12" cy="12" r="1" />
-													<circle cx="12" cy="5" r="1" />
-													<circle cx="12" cy="19" r="1" />
-												</svg>
-											</button>
-											{openDropdown === task.id && (
-												<div className="p-1 space-y-0.5 absolute z-50 right-10 mt-2 bg-white shadow-md rounded-lg dark:bg-neutral-800 dark:border dark:border-neutral-700">
-													<button
-														className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-blue-600 dark:hover:bg-blue-800/30 dark:hover:text-blue-600 dark:focus:bg-blue-800/30"
-														onClick={() => startEditing(task)}
-													>
-														Edit
-													</button>
-													<button
-														className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-red-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-red-500 dark:hover:bg-red-800/30 dark:hover:text-red-500 dark:focus:bg-red-800/30"
-														onClick={() => deleteTask(task.id)}
-													>
-														Delete
-													</button>
-												</div>
-											)}
-										</div>
-									</>
-								)}
-							</li>
-						))}
+									))}
+								</ul>
+							</SortableContext>
+						</DndContext>
 					</>
 				)}
-			</ul>
+			</div>
 			<audio ref={audioRef} src="/time-up.mp3" preload="auto" />
 		</div>
 	);
