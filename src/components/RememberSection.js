@@ -3,6 +3,22 @@
 import {useState, useEffect, useRef} from "react";
 import {supabase} from "../lib/supabaseClient";
 import {
+	DndContext,
+	closestCenter,
+	KeyboardSensor,
+	PointerSensor,
+	useSensor,
+	useSensors,
+} from "@dnd-kit/core";
+import {
+	arrayMove,
+	SortableContext,
+	sortableKeyboardCoordinates,
+	verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {useSortable} from "@dnd-kit/sortable";
+import {CSS} from "@dnd-kit/utilities";
+import {
 	inputStyle,
 	smallButton,
 	addButton,
@@ -10,6 +26,137 @@ import {
 	secondaryButton,
 	listStyle,
 } from "../app/AllStyles";
+import {LuGripVertical} from "react-icons/lu";
+
+// Sortable Remember Task Item Component
+const SortableRememberTaskItem = ({
+	task,
+	editingTask,
+	editText,
+	setEditText,
+	updateTask,
+	setEditingTask,
+	setOpenDropdown,
+	toggleTask,
+	toggleDropdown,
+	openDropdown,
+	dropdownRef,
+	inputStyle,
+	secondaryButton,
+	destructiveButton,
+	listStyle,
+	startEditing,
+	deleteTask,
+	index,
+}) => {
+	const {attributes, listeners, setNodeRef, transform, transition, isDragging} =
+		useSortable({id: task.id});
+
+	const style = {
+		transform: CSS.Transform.toString(transform),
+		transition,
+		opacity: isDragging ? 0.5 : 1,
+	};
+
+	return (
+		<li
+			ref={setNodeRef}
+			style={style}
+			className="flex items-center mt-2 space-x-2"
+		>
+			{editingTask === task.id ? (
+				<>
+					<input
+						type="text"
+						value={editText}
+						onChange={(e) => setEditText(e.target.value)}
+						className={inputStyle}
+					/>
+					<button className={secondaryButton} onClick={updateTask}>
+						Save
+					</button>
+					<button
+						className={destructiveButton}
+						onClick={() => {
+							setEditingTask(null);
+							setOpenDropdown(null);
+						}}
+					>
+						Cancel
+					</button>
+				</>
+			) : (
+				<>
+					<button
+						{...attributes}
+						{...listeners}
+						className="p-1 text-gray-400 hover:text-gray-600 dark:text-neutral-500 dark:hover:text-neutral-300 cursor-grab active:cursor-grabbing"
+						title="Drag to reorder"
+					>
+						<LuGripVertical size={16} />
+					</button>
+					<label className={listStyle}>
+						<span
+							className={`text-sm text-neutral-950 dark:text-white ${
+								task.done ? "line-through" : ""
+							}`}
+						>
+							{task.text}
+						</span>
+						<input
+							type="checkbox"
+							className="shrink-0 ms-auto mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
+							checked={task.done}
+							onChange={() => toggleTask(index)}
+						/>
+					</label>
+					<div
+						className="relative inline-flex"
+						ref={openDropdown === task.id ? dropdownRef : null}
+					>
+						<button
+							onClick={() => toggleDropdown(task.id)}
+							className="flex justify-center items-center size-9 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-950 dark:border-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+						>
+							<svg
+								className="flex-none size-4 text-gray-600 dark:text-neutral-500"
+								xmlns="http://www.w3.org/2000/svg"
+								width="24"
+								height="24"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								strokeWidth="2"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+							>
+								<circle cx="12" cy="12" r="1" />
+								<circle cx="12" cy="5" r="1" />
+								<circle cx="12" cy="19" r="1" />
+							</svg>
+						</button>
+						{openDropdown === task.id && (
+							<div className="p-1 space-y-0.5 absolute z-50 right-10 mt-2 bg-white shadow-md rounded-lg dark:bg-neutral-800 dark:border dark:border-neutral-700">
+								<button
+									className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-blue-600 dark:hover:bg-blue-800/30 dark:hover:text-blue-600 dark:focus:bg-blue-800/30"
+									onClick={() => startEditing(task)}
+								>
+									Edit
+								</button>
+								<button
+									className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-red-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-red-500 dark:hover:bg-red-800/30 dark:hover:text-red-500 dark:focus:bg-red-800/30"
+									onClick={() => deleteTask(task.id)}
+								>
+									Delete
+								</button>
+							</div>
+						)}
+					</div>
+				</>
+			)}
+		</li>
+	);
+};
 
 const RememberSection = ({title}) => {
 	const [tasks, setTasks] = useState([]);
@@ -18,6 +165,14 @@ const RememberSection = ({title}) => {
 	const [editText, setEditText] = useState("");
 	const [openDropdown, setOpenDropdown] = useState(null);
 	const dropdownRef = useRef(null); // Reference for dropdown
+
+	// DnD sensors
+	const sensors = useSensors(
+		useSensor(PointerSensor),
+		useSensor(KeyboardSensor, {
+			coordinateGetter: sortableKeyboardCoordinates,
+		})
+	);
 
 	useEffect(() => {
 		fetchTasks();
@@ -132,6 +287,20 @@ const RememberSection = ({title}) => {
 		setOpenDropdown(openDropdown === taskId ? null : taskId); // Toggle dropdown for each task
 	};
 
+	// Handle drag end
+	const handleDragEnd = (event) => {
+		const {active, over} = event;
+
+		if (active.id !== over.id) {
+			setTasks((items) => {
+				const oldIndex = items.findIndex((item) => item.id === active.id);
+				const newIndex = items.findIndex((item) => item.id === over.id);
+
+				return arrayMove(items, oldIndex, newIndex);
+			});
+		}
+	};
+
 	return (
 		<div className="p-4 mt-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-950 dark:border-neutral-900 sm:w-1/2 w-full">
 			<h2 className="text-lg font-semibold mb-4">🗒️ Remember</h2>
@@ -147,103 +316,53 @@ const RememberSection = ({title}) => {
 					Add
 				</button>
 			</div>
-			<ul className="mt-4">
+			<div className="mt-4">
 				<h2 className="text-sm font-semibold my-4 text-gray-500 dark:text-neutral-400 ">
 					Things To Remember
 				</h2>
 				{tasks.length === 0 ? (
-					<li className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
+					<div className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
 						No things to remember yet! Add your first reminder above.
-					</li>
+					</div>
 				) : (
-					tasks.map((task, index) => (
-						<li key={task.id} className="flex items-center mt-2 space-x-2">
-							{editingTask === task.id ? (
-								<>
-									<input
-										type="text"
-										value={editText}
-										onChange={(e) => setEditText(e.target.value)}
-										className={inputStyle}
+					<DndContext
+						sensors={sensors}
+						collisionDetection={closestCenter}
+						onDragEnd={handleDragEnd}
+					>
+						<SortableContext
+							items={tasks.map((task) => task.id)}
+							strategy={verticalListSortingStrategy}
+						>
+							<ul>
+								{tasks.map((task, index) => (
+									<SortableRememberTaskItem
+										key={task.id}
+										task={task}
+										index={index}
+										editingTask={editingTask}
+										editText={editText}
+										setEditText={setEditText}
+										updateTask={updateTask}
+										setEditingTask={setEditingTask}
+										setOpenDropdown={setOpenDropdown}
+										toggleTask={toggleTask}
+										toggleDropdown={toggleDropdown}
+										openDropdown={openDropdown}
+										dropdownRef={dropdownRef}
+										inputStyle={inputStyle}
+										secondaryButton={secondaryButton}
+										destructiveButton={destructiveButton}
+										listStyle={listStyle}
+										startEditing={startEditing}
+										deleteTask={deleteTask}
 									/>
-									<button className={secondaryButton} onClick={updateTask}>
-										Save
-									</button>
-									<button
-										className={destructiveButton}
-										onClick={() => {
-											setEditingTask(null);
-											setOpenDropdown(null);
-										}}
-									>
-										Cancel
-									</button>
-								</>
-							) : (
-								<>
-									<label className={listStyle}>
-										<span
-											className={`text-sm text-neutral-950 dark:text-white ${
-												task.done ? "line-through" : ""
-											}`}
-										>
-											{task.text}
-										</span>
-										<input
-											type="checkbox"
-											className="shrink-0 ms-auto mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
-											checked={task.done}
-											onChange={() => toggleTask(index)}
-										/>
-									</label>
-									<div
-										className="relative inline-flex"
-										ref={openDropdown === task.id ? dropdownRef : null}
-									>
-										<button
-											onClick={() => toggleDropdown(task.id)}
-											className="flex justify-center items-center size-9 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-950 dark:border-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
-										>
-											<svg
-												className="flex-none size-4 text-gray-600 dark:text-neutral-500"
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												viewBox="0 0 24 24"
-												fill="none"
-												stroke="currentColor"
-												strokeWidth="2"
-												strokeLinecap="round"
-												strokeLinejoin="round"
-											>
-												<circle cx="12" cy="12" r="1" />
-												<circle cx="12" cy="5" r="1" />
-												<circle cx="12" cy="19" r="1" />
-											</svg>
-										</button>
-										{openDropdown === task.id && (
-											<div className="p-1 space-y-0.5 absolute z-50 right-10 mt-2 bg-white shadow-md rounded-lg dark:bg-neutral-800 dark:border dark:border-neutral-700">
-												<button
-													className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-blue-600 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-blue-600 dark:hover:bg-blue-800/30 dark:hover:text-blue-600 dark:focus:bg-blue-800/30"
-													onClick={() => startEditing(task)}
-												>
-													Edit
-												</button>
-												<button
-													className="flex items-center gap-x-3.5 w-full py-2 px-3 rounded-lg text-sm text-red-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 dark:text-red-500 dark:hover:bg-red-800/30 dark:hover:text-red-500 dark:focus:bg-red-800/30"
-													onClick={() => deleteTask(task.id)}
-												>
-													Delete
-												</button>
-											</div>
-										)}
-									</div>
-								</>
-							)}
-						</li>
-					))
+								))}
+							</ul>
+						</SortableContext>
+					</DndContext>
 				)}
-			</ul>
+			</div>
 		</div>
 	);
 };

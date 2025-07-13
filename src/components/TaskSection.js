@@ -53,6 +53,8 @@ const SortableTaskItem = ({
 	secondaryButton,
 	destructiveButton,
 	listStyle,
+	startEditing,
+	deleteTask,
 }) => {
 	const {attributes, listeners, setNodeRef, transform, transition, isDragging} =
 		useSortable({id: task.id});
