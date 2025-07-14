@@ -27,6 +27,8 @@ import {
 	listStyle,
 } from "../app/AllStyles";
 import {LuGripVertical} from "react-icons/lu";
+import LoadingState from "./Loading";
+import EmptyState from "./EmptyState";
 
 // Sortable Remember Task Item Component
 const SortableRememberTaskItem = ({
@@ -351,19 +353,12 @@ const RememberSection = ({title}) => {
 					Things To Remember
 				</h2>
 				{isLoading ? (
-					<div className="flex justify-center items-center py-8">
-						<div
-							className="animate-spin inline-block size-6 border-3 border-current border-t-transparent text-blue-600 rounded-full dark:text-blue-500"
-							role="status"
-							aria-label="loading"
-						>
-							<span className="sr-only">Loading...</span>
-						</div>
-					</div>
+					<LoadingState />
 				) : tasks.length === 0 ? (
-					<div className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
-						No things to remember yet! Add your first reminder above.
-					</div>
+					<EmptyState
+						imageState="rememberEmptyImage"
+						description="emptyRememberMessage"
+					/>
 				) : (
 					<DndContext
 						sensors={sensors}

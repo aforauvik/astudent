@@ -35,6 +35,8 @@ import {TiMediaStop} from "react-icons/ti";
 import {IoIosCloseCircle} from "react-icons/io";
 import {IoPlayCircle} from "react-icons/io5";
 import {LuGripVertical} from "react-icons/lu";
+import LoadingState from "./Loading";
+import EmptyState from "./EmptyState";
 
 // Sortable Task Item Component
 const SortableTaskItem = ({
@@ -574,19 +576,12 @@ const TaskSection = ({title}) => {
 						: days.find((day) => day.value === activeDay)?.label}
 				</h2>
 				{isLoading ? (
-					<div className="flex justify-center items-center py-8">
-						<div
-							className="animate-spin inline-block size-6 border-3 border-current border-t-transparent text-blue-600 rounded-full dark:text-blue-500"
-							role="status"
-							aria-label="loading"
-						>
-							<span className="sr-only">Loading...</span>
-						</div>
-					</div>
+					<LoadingState />
 				) : filteredTasks.length === 0 ? (
-					<div className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
-						No tasks yet. Add a task above!
-					</div>
+					<EmptyState
+						imageState="taskEmptyImage"
+						description="emptyTaskMessage"
+					/>
 				) : (
 					<DndContext
 						sensors={sensors}

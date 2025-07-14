@@ -27,6 +27,8 @@ import {
 	listStyle,
 } from "../app/AllStyles";
 import {LuGripVertical} from "react-icons/lu";
+import LoadingState from "./Loading";
+import EmptyState from "./EmptyState";
 
 // Sortable Progress Item Component
 const SortableProgressItem = ({
@@ -388,22 +390,12 @@ const ProgressSection = () => {
 				</h2>
 
 				{isLoading ? (
-					<div className="flex justify-center items-center py-8">
-						<div
-							className="animate-spin inline-block size-6 border-3 border-current border-t-transparent text-blue-600 rounded-full dark:text-blue-500"
-							role="status"
-							aria-label="loading"
-						>
-							<span className="sr-only">Loading...</span>
-						</div>
-					</div>
+					<LoadingState />
 				) : subjects.length === 0 ? (
-					<div className="flex flex-col items-center justify-center py-8 text-center text-gray-400 dark:text-neutral-500">
-						<p className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
-							No progress tracked yet! Add your first project or assignment
-							above.
-						</p>
-					</div>
+					<EmptyState
+						imageState="trackEmptyImage"
+						description="emptyTrackMessage"
+					/>
 				) : (
 					<DndContext
 						sensors={sensors}
