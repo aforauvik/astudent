@@ -21,12 +21,17 @@ import {
 import {LuAlarmClock} from "react-icons/lu";
 import {IoIosCloseCircle} from "react-icons/io";
 import {HiMenu, HiX} from "react-icons/hi";
+import {BsSun, BsMoon} from "react-icons/bs";
+
+import {IoMdSunny} from "react-icons/io";
+import {IoMdMoon} from "react-icons/io";
 
 export default function TestNavBar() {
 	const router = useRouter();
 	const [user, setUser] = useState(null);
 	const [showTimerModal, setShowTimerModal] = useState(false);
 	const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+	const [isDarkMode, setIsDarkMode] = useState(false);
 
 	useEffect(() => {
 		const checkUser = async () => {
@@ -40,27 +45,72 @@ export default function TestNavBar() {
 		checkUser();
 	}, []);
 
+	useEffect(() => {
+		// Check for saved theme preference or default to light mode
+		const savedTheme = localStorage.getItem("theme");
+		const prefersDark = window.matchMedia(
+			"(prefers-color-scheme: dark)"
+		).matches;
+
+		console.log("Theme initialization:", {savedTheme, prefersDark});
+
+		if (savedTheme === "dark" || (!savedTheme && prefersDark)) {
+			setIsDarkMode(true);
+			document.documentElement.classList.add("dark");
+			console.log("Setting dark mode");
+		} else {
+			setIsDarkMode(false);
+			document.documentElement.classList.remove("dark");
+			console.log("Setting light mode");
+		}
+	}, []);
+
+	const toggleTheme = () => {
+		const newTheme = !isDarkMode;
+		setIsDarkMode(newTheme);
+		console.log("Toggling theme to:", newTheme ? "dark" : "light");
+
+		if (newTheme) {
+			document.documentElement.classList.add("dark");
+			localStorage.setItem("theme", "dark");
+		} else {
+			document.documentElement.classList.remove("dark");
+			localStorage.setItem("theme", "light");
+		}
+	};
+
 	const handleSignOut = async () => {
 		await supabase.auth.signOut();
 		router.push("/");
 	};
 
 	return (
-		<header className="flex flex-wrap sm:justify-start sm:flex-nowrap w-full bg-white text-sm py-3 px-4 dark:bg-neutral-900">
+		<header className="flex flex-wrap sm:justify-start sm:flex-nowrap w-full bg-white text-sm py-3 px-4 dark:bg-neutral-900 transition-colors duration-300">
 			<nav className="max-w-[120rem] w-full mx-auto flex flex-wrap basis-full items-center justify-between">
 				<div className="flex gap-4 items-center justify-between">
 					{logo}
-					<h1 className="text-base font-semibold hidden sm:block">
+					<h1 className="text-base text-gray-800 dark:text-white font-semibold hidden sm:block transition-colors duration-300">
 						Day Planner
 					</h1>
-
+					{/* dark and light mode switch */}
+					<button
+						onClick={toggleTheme}
+						className="p-2 rounded-md text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-all duration-300"
+						aria-label="Toggle dark mode"
+					>
+						{isDarkMode ? (
+							<IoMdSunny className="text-base transition-transform duration-300" />
+						) : (
+							<IoMdMoon className="text-base transition-transform duration-300" />
+						)}
+					</button>
 					{/* <CurrentDateTime /> */}
 				</div>
 				<div className="flex flex-wrap gap-4 items-center justify-between">
 					{user && (
-						<p className="text-base font-semibold text-neutral-400">
+						<p className="text-base font-semibold text-neutral-800 dark:text-neutral-400 transition-colors duration-300">
 							👋{" "}
-							<span className="dark:text-white">
+							<span className="dark:text-white transition-colors duration-300">
 								{user.user_metadata?.display_name || user.email}
 							</span>
 						</p>
@@ -69,19 +119,19 @@ export default function TestNavBar() {
 						{/* Hamburger menu for all screen sizes */}
 						<button
 							onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-							className="p-2 rounded-md text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-neutral-800"
+							className="p-2 rounded-md text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-all duration-300"
 							aria-label="Open menu"
 						>
 							{mobileMenuOpen ? (
-								<HiX className="text-2xl" />
+								<HiX className="text-2xl transition-transform duration-300" />
 							) : (
-								<HiMenu className="text-2xl" />
+								<HiMenu className="text-2xl transition-transform duration-300" />
 							)}
 						</button>
 					</div>
 					{/* Dropdown menu for all screen sizes */}
 					{mobileMenuOpen && (
-						<div className="absolute top-16 right-4 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg shadow-lg z-50 min-w-[80px] flex flex-col p-1 gap-2">
+						<div className="absolute top-16 right-4 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg shadow-lg z-50 min-w-[80px] flex flex-col p-1 gap-2 transition-all duration-300">
 							{user ? (
 								<button
 									onClick={() => {

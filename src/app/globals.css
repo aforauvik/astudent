@@ -19,6 +19,12 @@
 	padding: 0;
 }
 
+/* Global transition for theme switching */
+* {
+	transition: background-color 300ms ease, color 300ms ease,
+		border-color 300ms ease;
+}
+
 body {
 	color: var(--foreground);
 	background: var(--background);

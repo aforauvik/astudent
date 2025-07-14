@@ -125,7 +125,7 @@ const SortableTaskItem = ({
 					>
 						<button
 							onClick={() => toggleDropdown(task.id)}
-							className="flex justify-center items-center size-9 text-sm font-semibold rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-950 dark:border-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
+							className="flex justify-center items-center size-9 text-sm font-semibold rounded-lg bg-white text-gray-800 hover:bg-gray-50 focus:outline-none focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-950 dark:border-neutral-950 dark:text-white dark:hover:bg-neutral-800 dark:focus:bg-neutral-800"
 						>
 							<svg
 								className="flex-none size-4 text-gray-600 dark:text-neutral-500"
@@ -484,7 +484,9 @@ const TaskSection = ({title}) => {
 	return (
 		<div className="p-4 mt-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-950 dark:border-neutral-900 md:w-full sm:w-1/2 w-full">
 			<div className="flex flex-row justify-between items-start">
-				<h2 className="text-lg font-semibold mb-4">🔥 Do</h2>
+				<h2 className="text-lg text-neutral-800 dark:text-white font-semibold mb-4">
+					🔥 Do
+				</h2>
 
 				<div className="flex items-center gap-2">
 					{/* Timer display */}
