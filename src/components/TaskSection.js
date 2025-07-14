@@ -172,6 +172,7 @@ const TaskSection = ({title}) => {
 	const [editText, setEditText] = useState("");
 	const [openDropdown, setOpenDropdown] = useState(null);
 	const [activeDay, setActiveDay] = useState("Daily");
+	const [isLoading, setIsLoading] = useState(true);
 
 	// Timer state
 	const [timerDuration, setTimerDuration] = useState(null);
@@ -266,6 +267,7 @@ const TaskSection = ({title}) => {
 	}, []);
 
 	const fetchTasks = async () => {
+		setIsLoading(true);
 		const {data: sessionData, error: sessionError} =
 			await supabase.auth.getSession();
 
@@ -287,6 +289,7 @@ const TaskSection = ({title}) => {
 		if (!error) {
 			setTasks(data || []);
 		}
+		setIsLoading(false);
 	};
 
 	const addTask = async () => {
@@ -477,7 +480,7 @@ const TaskSection = ({title}) => {
 	};
 
 	return (
-		<div className="p-4 mt-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-950 dark:border-neutral-900 sm:w-1/2 w-full">
+		<div className="p-4 mt-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-950 dark:border-neutral-900 md:w-full sm:w-1/2 w-full">
 			<div className="flex flex-row justify-between items-start">
 				<h2 className="text-lg font-semibold mb-4">🔥 Do</h2>
 
@@ -570,7 +573,17 @@ const TaskSection = ({title}) => {
 						? "Daily"
 						: days.find((day) => day.value === activeDay)?.label}
 				</h2>
-				{filteredTasks.length === 0 ? (
+				{isLoading ? (
+					<div className="flex justify-center items-center py-8">
+						<div
+							className="animate-spin inline-block size-6 border-3 border-current border-t-transparent text-blue-600 rounded-full dark:text-blue-500"
+							role="status"
+							aria-label="loading"
+						>
+							<span className="sr-only">Loading...</span>
+						</div>
+					</div>
+				) : filteredTasks.length === 0 ? (
 					<div className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
 						No tasks yet. Add a task above!
 					</div>
@@ -613,7 +626,7 @@ const TaskSection = ({title}) => {
 				)}
 
 				{/* Show today's tasks under Daily, if any and if activeDay is Daily */}
-				{activeDay === "Daily" && todayTasks.length > 0 && (
+				{activeDay === "Daily" && todayTasks.length > 0 && !isLoading && (
 					<>
 						<h3 className="text-sm font-semibold mt-6 mb-4 text-gray-400 dark:text-neutral-400">
 							{todayFullDayName} Only

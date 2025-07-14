@@ -20,7 +20,7 @@ const Dashboard = () => {
 				<ProgressSection />
 			</div> */}
 
-				<div className="flex gap-2 px-2 flex-wrap sm:flex-nowrap">
+				<div className="flex gap-2 px-2 flex-wrap lg:flex-nowrap md:flex-wrap sm:flex-nowrap">
 					<TaskSection title="To Do" />
 					<RememberSection title="To Remember" />
 					<ProgressSection />

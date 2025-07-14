@@ -164,6 +164,7 @@ const RememberSection = ({title}) => {
 	const [editingTask, setEditingTask] = useState(null);
 	const [editText, setEditText] = useState("");
 	const [openDropdown, setOpenDropdown] = useState(null);
+	const [isLoading, setIsLoading] = useState(true);
 	const dropdownRef = useRef(null); // Reference for dropdown
 
 	// DnD sensors
@@ -193,6 +194,7 @@ const RememberSection = ({title}) => {
 	}, []);
 
 	const fetchTasks = async () => {
+		setIsLoading(true);
 		const {data: sessionData, error: sessionError} =
 			await supabase.auth.getSession();
 
@@ -211,6 +213,7 @@ const RememberSection = ({title}) => {
 			.order("created_at", {ascending: true});
 
 		if (!error) setTasks(data || []);
+		setIsLoading(false);
 	};
 
 	const addTask = async () => {
@@ -329,7 +332,7 @@ const RememberSection = ({title}) => {
 	};
 
 	return (
-		<div className="p-4 mt-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-950 dark:border-neutral-900 sm:w-1/2 w-full">
+		<div className="p-4 mt-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-950 dark:border-neutral-900 md:w-full sm:w-1/2 w-full">
 			<h2 className="text-lg font-semibold mb-4">🗒️ Remember</h2>
 			<div className="flex rounded-lg shadow-sm">
 				<input
@@ -347,7 +350,17 @@ const RememberSection = ({title}) => {
 				<h2 className="text-sm font-semibold my-4 text-gray-500 dark:text-neutral-400 ">
 					Things To Remember
 				</h2>
-				{tasks.length === 0 ? (
+				{isLoading ? (
+					<div className="flex justify-center items-center py-8">
+						<div
+							className="animate-spin inline-block size-6 border-3 border-current border-t-transparent text-blue-600 rounded-full dark:text-blue-500"
+							role="status"
+							aria-label="loading"
+						>
+							<span className="sr-only">Loading...</span>
+						</div>
+					</div>
+				) : tasks.length === 0 ? (
 					<div className="text-sm text-gray-500 dark:text-neutral-400 text-center py-4">
 						No things to remember yet! Add your first reminder above.
 					</div>
