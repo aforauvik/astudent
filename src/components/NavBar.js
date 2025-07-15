@@ -2,6 +2,7 @@
 
 import CurrentDateTime from "./TimeDate";
 import TimerModal from "./TimerModal";
+import ThemeToggle from "./ThemeToggle";
 
 import {useEffect, useState, Fragment, useRef} from "react";
 import {useRouter} from "next/navigation";
@@ -92,18 +93,7 @@ export default function TestNavBar() {
 					<h1 className="text-base text-gray-800 dark:text-white font-semibold hidden sm:block transition-colors duration-300">
 						Day Planner
 					</h1>
-					{/* dark and light mode switch */}
-					<button
-						onClick={toggleTheme}
-						className="p-2 rounded-md text-gray-700 dark:text-white hover:bg-gray-100 dark:hover:bg-neutral-800 transition-all duration-300"
-						aria-label="Toggle dark mode"
-					>
-						{isDarkMode ? (
-							<IoMdSunny className="text-base transition-transform duration-300" />
-						) : (
-							<IoMdMoon className="text-base transition-transform duration-300" />
-						)}
-					</button>
+
 					{/* <CurrentDateTime /> */}
 				</div>
 				<div className="flex flex-wrap gap-4 items-center justify-between">
@@ -131,14 +121,19 @@ export default function TestNavBar() {
 					</div>
 					{/* Dropdown menu for all screen sizes */}
 					{mobileMenuOpen && (
-						<div className="absolute top-16 right-4 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg shadow-lg z-50 min-w-[80px] flex flex-col p-1 gap-2 transition-all duration-300">
+						<div className="absolute top-16 right-4 bg-white dark:bg-neutral-900 border border-gray-200 dark:border-neutral-800 rounded-lg shadow-lg z-50 min-w-[80px] flex flex-col justify-start items-start p-1 gap-2 transition-all duration-300">
+							{/* Theme toggle in dropdown */}
+							<ThemeToggle isDarkMode={isDarkMode} onToggle={toggleTheme} />
+							<div className="w-full border-t border-gray-200 dark:border-neutral-800"></div>
 							{user ? (
 								<button
 									onClick={() => {
 										setMobileMenuOpen(false);
 										handleSignOut();
 									}}
-									className={destructiveButton}
+									className={
+										"p-3 w-full text-sm font-semibold rounded-lg border border-transparent text-red-500 hover:bg-red-100 focus:outline-none focus:bg-red-100 hover:text-red-800 disabled:opacity-50 disabled:pointer-events-none dark:hover:bg-red-800/30 dark:hover:text-red-400 dark:focus:bg-red-800/30 dark:focus:text-red-400 flex items-center gap-2 justify-start text-left"
+									}
 								>
 									<div className="bg-red-500/25 p-1 rounded-lg">
 										<IoMdPower className="text-base" />
@@ -151,7 +146,10 @@ export default function TestNavBar() {
 										setMobileMenuOpen(false);
 										router.push("/signin");
 									}}
-									className={secondaryButton}
+									className={
+										secondaryButton +
+										" w-full flex items-center gap-2 justify-start text-left"
+									}
 								>
 									Sign In
 								</button>

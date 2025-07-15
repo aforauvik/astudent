@@ -213,6 +213,7 @@ const TaskSection = ({title}) => {
 	const timerOptions = [
 		{label: "5m", value: 5 * 60},
 		{label: "15m", value: 15 * 60},
+		{label: "25m", value: 25 * 60},
 		{label: "30m", value: 30 * 60},
 		{label: "1h", value: 60 * 60},
 		{label: "1.5h", value: 90 * 60},
@@ -491,15 +492,15 @@ const TaskSection = ({title}) => {
 				<div className="flex items-center gap-2">
 					{/* Timer display */}
 					{timerStart && timerDuration && (
-						<div className="flex items-center gap-2 px-3 py-1 rounded-md bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
-							<button
+						<div className="flex items-center gap-2 px-2 py-1 rounded-md bg-emerald-100 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
+							{/* <button
 								onClick={isPaused ? resumeTimer : pauseTimer}
 								className="text-xs text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200"
 								title={isPaused ? "Resume" : "Pause"}
 							>
 								{isPaused ? <TiMediaPlay /> : <TiMediaPause />}
-							</button>
-							<span className="text-sm font-mono text-emerald-700 dark:text-emerald-300">
+							</button> */}
+							<span className="text-xs font-mono text-emerald-700 dark:text-emerald-300">
 								{formatTime(timeLeft)}
 							</span>
 
@@ -514,12 +515,13 @@ const TaskSection = ({title}) => {
 					)}
 
 					{/* Timer button */}
-					<div className="relative">
+					<div className="relative flex justify-center items-center gap-1">
 						<button
 							onClick={() => setShowTimerOptions(!showTimerOptions)}
-							className="px-1 py-1 rounded-md border border-emerald-500/25 bg-emerald-400/30 dark:bg-emerald-900/30 text-emerald-500  font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-900 transition"
+							className="px-2 py-1 w-full justify-center items-center flex gap-1 rounded-md border border-emerald-500/25 bg-emerald-400/30 dark:bg-emerald-900/30 text-emerald-500  font-semibold hover:bg-emerald-100 dark:hover:bg-emerald-900 transition"
 						>
-							<LuAlarmClock className="text-xl" />
+							<span className="text-xs  text-emerald-500">Pomodoro Timer</span>{" "}
+							<LuAlarmClock className="text-lg" />
 						</button>
 
 						{/* Timer options dropdown */}
