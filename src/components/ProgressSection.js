@@ -259,6 +259,21 @@ const ProgressSection = () => {
 		setIsLoading(false);
 	};
 
+	// New: syncSubjects (no spinner)
+	const syncSubjects = async () => {
+		const {data: sessionData, error: sessionError} =
+			await supabase.auth.getSession();
+		if (sessionError || !sessionData?.session) return;
+		const userId = sessionData.session.user.id;
+		const {data, error} = await supabase
+			.from("progress")
+			.select("*")
+			.eq("user_id", userId)
+			.order("sort_order", {ascending: true})
+			.order("created_at", {ascending: true});
+		if (!error) setSubjects(data || []);
+	};
+
 	const addSubject = async () => {
 		const {data: userData, error: userError} = await supabase.auth.getUser();
 
@@ -270,24 +285,29 @@ const ProgressSection = () => {
 		const userId = userData.user.id;
 
 		if (subjectInput.trim()) {
-			// Get the highest sort_order value to place new subject at the end
 			const maxSortOrder =
 				subjects.length > 0
 					? Math.max(...subjects.map((s) => s.sort_order || 0))
 					: 0;
 			const newSortOrder = maxSortOrder + 1;
 
-			const {error} = await supabase.from("progress").insert([
-				{
-					name: subjectInput,
-					progress: 0,
-					user_id: userId,
-					sort_order: newSortOrder,
-				},
-			]);
-			if (!error) {
-				fetchSubjects();
+			const {data, error} = await supabase
+				.from("progress")
+				.insert([
+					{
+						name: subjectInput,
+						progress: 0,
+						user_id: userId,
+						sort_order: newSortOrder,
+					},
+				])
+				.select();
+			if (!error && data && data.length > 0) {
+				// Optimistically update local state
+				setSubjects([...subjects, data[0]]);
 				setSubjectInput("");
+				// Optionally sync in background
+				syncSubjects();
 			}
 		}
 	};
@@ -298,7 +318,10 @@ const ProgressSection = () => {
 			.update({progress})
 			.eq("id", id);
 		if (!error) {
-			fetchSubjects();
+			// Optimistically update local state
+			setSubjects(subjects.map((s) => (s.id === id ? {...s, progress} : s)));
+			// Optionally sync in background
+			syncSubjects();
 		}
 	};
 
@@ -311,7 +334,10 @@ const ProgressSection = () => {
 			.eq("id", id)
 			.eq("user_id", userData.user.id);
 		if (!error) {
-			fetchSubjects();
+			// Optimistically update local state
+			setSubjects(subjects.filter((subject) => subject.id !== id));
+			// Optionally sync in background
+			syncSubjects();
 		}
 	};
 
@@ -328,9 +354,16 @@ const ProgressSection = () => {
 				.eq("id", editingSubject);
 			setOpenDropdown(null); // Close the dropdown after update
 			if (!error) {
-				fetchSubjects();
+				// Optimistically update local state
+				setSubjects(
+					subjects.map((s) =>
+						s.id === editingSubject ? {...s, name: editText} : s
+					)
+				);
 				setEditingSubject(null);
 				setEditText("");
+				// Optionally sync in background
+				syncSubjects();
 			}
 		}
 	};
@@ -347,11 +380,9 @@ const ProgressSection = () => {
 			const oldIndex = subjects.findIndex((item) => item.id === active.id);
 			const newIndex = subjects.findIndex((item) => item.id === over.id);
 
-			// Update local state immediately for responsive UI
-			setSubjects((items) => arrayMove(items, oldIndex, newIndex));
-
-			// Update sort_order in database
+			// Optimistically update local state
 			const reorderedSubjects = arrayMove(subjects, oldIndex, newIndex);
+			setSubjects(reorderedSubjects);
 
 			// Update sort_order for all affected items
 			const updates = reorderedSubjects.map((subject, index) => ({
@@ -366,6 +397,8 @@ const ProgressSection = () => {
 					.update({sort_order: update.sort_order})
 					.eq("id", update.id);
 			}
+			// Optionally sync in background
+			syncSubjects();
 		}
 	};
 

@@ -295,6 +295,21 @@ const TaskSection = ({title}) => {
 		setIsLoading(false);
 	};
 
+	// New: syncTasks (no spinner)
+	const syncTasks = async () => {
+		const {data: sessionData, error: sessionError} =
+			await supabase.auth.getSession();
+		if (sessionError || !sessionData?.session) return;
+		const userId = sessionData.session.user.id;
+		const {data, error} = await supabase
+			.from("tasks")
+			.select("*")
+			.eq("user_id", userId)
+			.order("sort_order", {ascending: true})
+			.order("created_at", {ascending: true});
+		if (!error) setTasks(data || []);
+	};
+
 	const addTask = async () => {
 		const {data: userData, error: userError} = await supabase.auth.getUser();
 
@@ -306,24 +321,29 @@ const TaskSection = ({title}) => {
 		const userId = userData.user.id;
 
 		if (taskInput.trim()) {
-			// Get the highest sort_order value to place new task at the end
 			const maxSortOrder =
 				tasks.length > 0 ? Math.max(...tasks.map((t) => t.sort_order || 0)) : 0;
 			const newSortOrder = maxSortOrder + 1;
 
-			const {error} = await supabase.from("tasks").insert([
-				{
-					text: taskInput,
-					done: false,
-					user_id: userId,
-					day_of_week: activeDay,
-					sort_order: newSortOrder,
-				},
-			]);
+			const {data, error} = await supabase
+				.from("tasks")
+				.insert([
+					{
+						text: taskInput,
+						done: false,
+						user_id: userId,
+						day_of_week: activeDay,
+						sort_order: newSortOrder,
+					},
+				])
+				.select();
 
-			if (!error) {
-				fetchTasks();
+			if (!error && data && data.length > 0) {
+				// Optimistically update local state
+				setTasks([...tasks, data[0]]);
 				setTaskInput("");
+				// Optionally sync in background
+				syncTasks();
 			} else {
 				console.error("Error adding task:", error);
 			}
@@ -340,7 +360,10 @@ const TaskSection = ({title}) => {
 			.eq("id", taskId);
 
 		if (!error) {
+			// Optimistically update local state
 			setTasks(tasks.map((t) => (t.id === taskId ? {...t, done: !t.done} : t)));
+			// Optionally sync in background
+			syncTasks();
 		}
 	};
 
@@ -354,7 +377,10 @@ const TaskSection = ({title}) => {
 			.eq("user_id", userData.user.id);
 
 		if (!error) {
+			// Optimistically update local state
 			setTasks(tasks.filter((task) => task.id !== id));
+			// Optionally sync in background
+			syncTasks();
 		}
 	};
 
@@ -372,9 +398,14 @@ const TaskSection = ({title}) => {
 			setOpenDropdown(null);
 
 			if (!error) {
-				fetchTasks();
+				// Optimistically update local state
+				setTasks(
+					tasks.map((t) => (t.id === editingTask ? {...t, text: editText} : t))
+				);
 				setEditingTask(null);
 				setEditText("");
+				// Optionally sync in background
+				syncTasks();
 			}
 		}
 	};
@@ -391,11 +422,9 @@ const TaskSection = ({title}) => {
 			const oldIndex = tasks.findIndex((item) => item.id === active.id);
 			const newIndex = tasks.findIndex((item) => item.id === over.id);
 
-			// Update local state immediately for responsive UI
-			setTasks((items) => arrayMove(items, oldIndex, newIndex));
-
-			// Update sort_order in database
+			// Optimistically update local state
 			const reorderedTasks = arrayMove(tasks, oldIndex, newIndex);
+			setTasks(reorderedTasks);
 
 			// Update sort_order for all affected items
 			const updates = reorderedTasks.map((task, index) => ({
@@ -410,6 +439,8 @@ const TaskSection = ({title}) => {
 					.update({sort_order: update.sort_order})
 					.eq("id", update.id);
 			}
+			// Optionally sync in background
+			syncTasks();
 		}
 	};
 
