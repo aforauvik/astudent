@@ -64,7 +64,7 @@ const SignUp = () => {
 						<p className="mt-2 text-sm text-gray-600 dark:text-neutral-400">
 							Already have an account?{" "}
 							<a
-								className="text-blue-600 decoration-2 hover:underline focus:outline-none focus:underline font-medium dark:text-blue-500"
+								className="text-blue-600 decoration-2 font-semibold hover:underline focus:outline-none focus:underline dark:text-blue-500"
 								href="/signin"
 							>
 								Sign in here
@@ -76,7 +76,7 @@ const SignUp = () => {
 						<form onSubmit={handleSubmit}>
 							<div className="grid gap-y-4">
 								<div>
-									<label className="block text-sm mb-2 dark:text-white">
+									<label className="block text-sm mb-2 font-semibold text-neutral-900 dark:text-white">
 										Name
 									</label>
 									<input
@@ -88,7 +88,7 @@ const SignUp = () => {
 									/>
 								</div>
 								<div>
-									<label className="block text-sm mb-2 dark:text-white">
+									<label className="block text-sm mb-2 font-semibold text-neutral-900 dark:text-white">
 										Email Address
 									</label>
 									<input
@@ -101,7 +101,7 @@ const SignUp = () => {
 								</div>
 
 								<div>
-									<label className="block text-sm mb-2 dark:text-white">
+									<label className="block text-sm mb-2 font-semibold text-neutral-900 dark:text-white">
 										Password
 									</label>
 									<input
@@ -114,7 +114,7 @@ const SignUp = () => {
 								</div>
 
 								<div>
-									<label className="block text-sm mb-2 dark:text-white">
+									<label className="block text-sm mb-2 font-semibold text-neutral-900 dark:text-white">
 										Confirm Password
 									</label>
 									<input
@@ -135,7 +135,7 @@ const SignUp = () => {
 										checked={termsAccepted}
 										onChange={(e) => setTermsAccepted(e.target.checked)}
 									/>
-									<label className="ml-3 text-sm dark:text-white">
+									<label className="ml-3 text-sm text-neutral-900 dark:text-white">
 										I accept the{" "}
 										<a
 											href="#"

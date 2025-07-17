@@ -59,7 +59,7 @@ const SignIn = () => {
 						<form onSubmit={handleSubmit}>
 							<div className="grid gap-y-4">
 								<div>
-									<label className="block font-semibold text-sm mb-2 dark:text-white">
+									<label className="block font-semibold text-sm mb-2 text-neutral-900 dark:text-white">
 										Email Address
 									</label>
 									<input
@@ -72,7 +72,7 @@ const SignIn = () => {
 								</div>
 								<div>
 									<div className="flex justify-between items-center">
-										<label className="font-semibold block text-sm mb-2 dark:text-white">
+										<label className="font-semibold block text-sm mb-2 text-neutral-900 dark:text-white">
 											Password
 										</label>
 										{/* <Link
