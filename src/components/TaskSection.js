@@ -573,7 +573,7 @@ const TaskSection = ({title}) => {
 				</div>
 			</div>
 
-			<div className="flex flex-col space-y-3">
+			<div className="flex flex-col">
 				<div className="flex rounded-lg shadow-sm mb-4">
 					<input
 						type="text"
@@ -586,14 +586,14 @@ const TaskSection = ({title}) => {
 						Add
 					</button>
 				</div>
-				<div className="flex bg-gray-100 dark:bg-neutral-800 p-1 rounded-lg">
+				<div className="flex bg-gray-100 dark:bg-neutral-900 p-1 rounded-lg">
 					{days.map((day) => (
 						<button
 							key={day.value}
 							onClick={() => setActiveDay(day.value)}
 							className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-colors ${
 								activeDay === day.value
-									? "bg-white dark:bg-neutral-700 text-gray-900 dark:text-white shadow-sm"
+									? "bg-white dark:bg-neutral-800 text-gray-900 dark:text-white shadow-sm"
 									: "text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white"
 							}`}
 						>
