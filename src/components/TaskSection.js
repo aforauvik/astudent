@@ -514,7 +514,7 @@ const TaskSection = ({title}) => {
 	};
 
 	return (
-		<div className="p-4 mt-4 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-950 dark:border-neutral-900 md:w-full sm:w-1/2 w-full">
+		<div className="p-4 mt-2 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-950 dark:border-neutral-900 md:w-full sm:w-1/2 w-full">
 			<div className="flex flex-row justify-between items-start">
 				<h2 className="text-lg text-neutral-800 dark:text-white font-semibold mb-4">
 					🔥 Do
