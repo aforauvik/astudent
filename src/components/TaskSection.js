@@ -591,7 +591,7 @@ const TaskSection = ({title}) => {
 						<button
 							key={day.value}
 							onClick={() => setActiveDay(day.value)}
-							className={`flex-1 py-2 px-3 text-sm font-medium rounded-md transition-colors ${
+							className={`flex-1 py-2 px-3 text-xs font-medium rounded-md transition-colors ${
 								activeDay === day.value
 									? "bg-white dark:bg-neutral-800 text-gray-900 dark:text-white shadow-sm"
 									: "text-gray-600 dark:text-neutral-400 hover:text-gray-900 dark:hover:text-white"
