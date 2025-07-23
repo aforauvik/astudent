@@ -29,6 +29,8 @@ import {
 } from "../app/AllStyles";
 
 import {LuAlarmClock} from "react-icons/lu";
+import {PiTimerFill} from "react-icons/pi";
+
 import {TiMediaPause} from "react-icons/ti";
 import {TiMediaPlay} from "react-icons/ti";
 import {TiMediaStop} from "react-icons/ti";
@@ -37,6 +39,7 @@ import {IoPlayCircle} from "react-icons/io5";
 import {LuGripVertical} from "react-icons/lu";
 import LoadingState from "./Loading";
 import EmptyState from "./EmptyState";
+import DurationModal from "./DurationModal";
 
 // Sortable Task Item Component
 const SortableTaskItem = ({
@@ -57,6 +60,10 @@ const SortableTaskItem = ({
 	listStyle,
 	startEditing,
 	deleteTask,
+	formatDuration,
+	editingDuration,
+	setEditingDuration,
+	updateTaskDuration,
 }) => {
 	const {attributes, listeners, setNodeRef, transform, transition, isDragging} =
 		useSortable({id: task.id});
@@ -105,13 +112,47 @@ const SortableTaskItem = ({
 						<LuGripVertical size={16} />
 					</button>
 					<label className={listStyle}>
-						<span
-							className={`text-sm text-gray-950 dark:text-white ${
-								task.done ? "line-through" : ""
-							}`}
-						>
-							{task.text}
-						</span>
+						<div className="flex flex-col flex-1">
+							<span
+								className={`text-sm text-gray-950 dark:text-white ${
+									task.done ? "line-through" : ""
+								}`}
+							>
+								{task.text}
+							</span>
+							{task.duration && (
+								<div className="text-xs text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1">
+									<PiTimerFill className="text-xs" />
+									{editingDuration === task.id ? (
+										<select
+											value={task.duration}
+											onChange={(e) =>
+												updateTaskDuration(task.id, parseInt(e.target.value))
+											}
+											className="text-xs bg-transparent border-none focus:ring-0 p-0 text-blue-600 dark:text-blue-400"
+											onBlur={() => setEditingDuration(null)}
+											autoFocus
+										>
+											<option value={5}>5 minutes</option>
+											<option value={10}>10 minutes</option>
+											<option value={15}>15 minutes</option>
+											<option value={30}>30 minutes</option>
+											<option value={60}>1 hour</option>
+											<option value={120}>2 hours</option>
+											<option value={180}>3 hours</option>
+											<option value={240}>4 hours</option>
+										</select>
+									) : (
+										<span
+											className="cursor-pointer hover:underline"
+											onClick={() => setEditingDuration(task.id)}
+										>
+											{formatDuration(task.duration)}
+										</span>
+									)}
+								</div>
+							)}
+						</div>
 						<input
 							type="checkbox"
 							className="shrink-0 ms-auto mt-0.5 border-gray-200 rounded text-blue-600 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800"
@@ -167,14 +208,19 @@ const SortableTaskItem = ({
 	);
 };
 
-const TaskSection = ({title}) => {
+const TaskSection = ({title, onTaskChange}) => {
 	const [tasks, setTasks] = useState([]);
 	const [taskInput, setTaskInput] = useState("");
 	const [editingTask, setEditingTask] = useState(null);
 	const [editText, setEditText] = useState("");
 	const [openDropdown, setOpenDropdown] = useState(null);
+	const [editingDuration, setEditingDuration] = useState(null);
 	const [activeDay, setActiveDay] = useState("Daily");
 	const [isLoading, setIsLoading] = useState(true);
+
+	// Duration modal state
+	const [showDurationModal, setShowDurationModal] = useState(false);
+	const [pendingTaskText, setPendingTaskText] = useState("");
 
 	// Timer state
 	const [timerDuration, setTimerDuration] = useState(null);
@@ -246,10 +292,12 @@ const TaskSection = ({title}) => {
 		timeLeft = Math.max(timerDuration - timePassed, 0);
 	}
 
-	// Play sound when timer is up
+	// Play sound when timer is up and update productivity
 	useEffect(() => {
 		if (timeLeft === 0 && timerStart && audioRef.current) {
 			audioRef.current.play();
+			// Update productivity tracking when timer completes
+			updateProductivityTracking();
 		}
 	}, [timeLeft, timerStart]);
 
@@ -311,6 +359,13 @@ const TaskSection = ({title}) => {
 	};
 
 	const addTask = async () => {
+		if (taskInput.trim()) {
+			setPendingTaskText(taskInput);
+			setShowDurationModal(true);
+		}
+	};
+
+	const handleDurationSave = async (duration) => {
 		const {data: userData, error: userError} = await supabase.auth.getUser();
 
 		if (userError || !userData?.user) {
@@ -320,33 +375,34 @@ const TaskSection = ({title}) => {
 
 		const userId = userData.user.id;
 
-		if (taskInput.trim()) {
-			const maxSortOrder =
-				tasks.length > 0 ? Math.max(...tasks.map((t) => t.sort_order || 0)) : 0;
-			const newSortOrder = maxSortOrder + 1;
+		const maxSortOrder =
+			tasks.length > 0 ? Math.max(...tasks.map((t) => t.sort_order || 0)) : 0;
+		const newSortOrder = maxSortOrder + 1;
 
-			const {data, error} = await supabase
-				.from("tasks")
-				.insert([
-					{
-						text: taskInput,
-						done: false,
-						user_id: userId,
-						day_of_week: activeDay,
-						sort_order: newSortOrder,
-					},
-				])
-				.select();
+		const {data, error} = await supabase
+			.from("tasks")
+			.insert([
+				{
+					text: pendingTaskText,
+					done: false,
+					user_id: userId,
+					day_of_week: activeDay,
+					sort_order: newSortOrder,
+					duration: duration,
+				},
+			])
+			.select();
 
-			if (!error && data && data.length > 0) {
-				// Optimistically update local state
-				setTasks([...tasks, data[0]]);
-				setTaskInput("");
-				// Optionally sync in background
-				syncTasks();
-			} else {
-				console.error("Error adding task:", error);
-			}
+		if (!error && data && data.length > 0) {
+			// Optimistically update local state
+			setTasks([...tasks, data[0]]);
+			setTaskInput("");
+			// Optionally sync in background
+			syncTasks();
+			// Notify parent component to refresh productivity
+			if (onTaskChange) onTaskChange();
+		} else {
+			console.error("Error adding task:", error);
 		}
 	};
 
@@ -364,6 +420,8 @@ const TaskSection = ({title}) => {
 			setTasks(tasks.map((t) => (t.id === taskId ? {...t, done: !t.done} : t)));
 			// Optionally sync in background
 			syncTasks();
+			// Notify parent component to refresh productivity
+			if (onTaskChange) onTaskChange();
 		}
 	};
 
@@ -381,6 +439,8 @@ const TaskSection = ({title}) => {
 			setTasks(tasks.filter((task) => task.id !== id));
 			// Optionally sync in background
 			syncTasks();
+			// Notify parent component to refresh productivity
+			if (onTaskChange) onTaskChange();
 		}
 	};
 
@@ -406,6 +466,93 @@ const TaskSection = ({title}) => {
 				setEditText("");
 				// Optionally sync in background
 				syncTasks();
+				// Notify parent component to refresh productivity
+				if (onTaskChange) onTaskChange();
+			}
+		}
+	};
+
+	const updateTaskDuration = async (taskId, duration) => {
+		const {error} = await supabase
+			.from("tasks")
+			.update({duration: duration})
+			.eq("id", taskId);
+
+		if (!error) {
+			// Optimistically update local state
+			setTasks(
+				tasks.map((t) => (t.id === taskId ? {...t, duration: duration} : t))
+			);
+			setEditingDuration(null);
+			// Optionally sync in background
+			syncTasks();
+			// Notify parent component to refresh productivity
+			if (onTaskChange) onTaskChange();
+		}
+	};
+
+	const updateProductivityTracking = async () => {
+		if (timerDuration) {
+			const completedMinutes = Math.floor(timerDuration / 60);
+
+			// Get the current user
+			const {data: userData, error: userError} = await supabase.auth.getUser();
+
+			if (!userError && userData?.user) {
+				const userId = userData.user.id;
+
+				// Update the user's total productivity for today
+				const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+
+				// First, try to get existing productivity record for today
+				const {data: existingData, error: fetchError} = await supabase
+					.from("productivity")
+					.select("*")
+					.eq("user_id", userId)
+					.eq("date", today)
+					.single();
+
+				if (fetchError && fetchError.code !== "PGRST116") {
+					// PGRST116 is "not found"
+					console.error("Error fetching productivity data:", fetchError);
+					return;
+				}
+
+				if (existingData) {
+					// Update existing record
+					const {error: updateError} = await supabase
+						.from("productivity")
+						.update({
+							completed_minutes:
+								existingData.completed_minutes + completedMinutes,
+						})
+						.eq("id", existingData.id);
+
+					if (updateError) {
+						console.error("Error updating productivity:", updateError);
+					} else {
+						// Notify parent component to refresh productivity
+						if (onTaskChange) onTaskChange();
+					}
+				} else {
+					// Create new record for today
+					const {error: insertError} = await supabase
+						.from("productivity")
+						.insert([
+							{
+								user_id: userId,
+								date: today,
+								completed_minutes: completedMinutes,
+							},
+						]);
+
+					if (insertError) {
+						console.error("Error inserting productivity:", insertError);
+					} else {
+						// Notify parent component to refresh productivity
+						if (onTaskChange) onTaskChange();
+					}
+				}
 			}
 		}
 	};
@@ -441,6 +588,8 @@ const TaskSection = ({title}) => {
 			}
 			// Optionally sync in background
 			syncTasks();
+			// Notify parent component to refresh productivity
+			if (onTaskChange) onTaskChange();
 		}
 	};
 
@@ -511,6 +660,22 @@ const TaskSection = ({title}) => {
 			.padStart(2, "0");
 		const s = (seconds % 60).toString().padStart(2, "0");
 		return `${m}:${s}`;
+	};
+
+	const formatDuration = (minutes) => {
+		if (minutes < 60) {
+			return `${minutes} minute${minutes !== 1 ? "s" : ""}`;
+		} else {
+			const hours = Math.floor(minutes / 60);
+			const remainingMinutes = minutes % 60;
+			if (remainingMinutes === 0) {
+				return `${hours} hour${hours !== 1 ? "s" : ""}`;
+			} else {
+				return `${hours} hour${
+					hours !== 1 ? "s" : ""
+				} ${remainingMinutes} minute${remainingMinutes !== 1 ? "s" : ""}`;
+			}
+		}
 	};
 
 	return (
@@ -648,6 +813,10 @@ const TaskSection = ({title}) => {
 										listStyle={listStyle}
 										startEditing={startEditing}
 										deleteTask={deleteTask}
+										formatDuration={formatDuration}
+										editingDuration={editingDuration}
+										setEditingDuration={setEditingDuration}
+										updateTaskDuration={updateTaskDuration}
 									/>
 								))}
 							</ul>
@@ -691,6 +860,10 @@ const TaskSection = ({title}) => {
 											listStyle={listStyle}
 											startEditing={startEditing}
 											deleteTask={deleteTask}
+											formatDuration={formatDuration}
+											editingDuration={editingDuration}
+											setEditingDuration={setEditingDuration}
+											updateTaskDuration={updateTaskDuration}
 										/>
 									))}
 								</ul>
@@ -700,6 +873,14 @@ const TaskSection = ({title}) => {
 				)}
 			</div>
 			<audio ref={audioRef} src="/time-up.mp3" preload="auto" />
+
+			{/* Duration Modal */}
+			<DurationModal
+				isOpen={showDurationModal}
+				onClose={() => setShowDurationModal(false)}
+				taskText={pendingTaskText}
+				onSave={handleDurationSave}
+			/>
 		</div>
 	);
 };

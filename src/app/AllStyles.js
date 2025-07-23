@@ -1,5 +1,5 @@
 export const inputStyle =
-	"py-3 px-4 block w-full border-gray-200 rounded-s-lg text-base focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-400 dark:placeholder-neutral-500 text-neutral-800  dark:text-white dark:focus:border-neutral-700 dark:focus:ring-neutral-700";
+	"py-3 px-4 block w-full border-gray-200 rounded-s-lg text-base focus:z-10 focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-900 dark:border-neutral-800 dark:text-neutral-400 dark:placeholder-neutral-500 text-neutral-800  dark:text-white dark:focus:border-neutral-800 dark:focus:ring-neutral-800";
 
 export const listStyle =
 	"flex p-3 w-full bg-white border border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 text-neutral-800 dark:bg-neutral-900 dark:border-neutral-900 dark:text-white";
