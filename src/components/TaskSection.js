@@ -263,7 +263,6 @@ const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 
 	// Timer options
 	const timerOptions = [
-		{label: "1m", value: 1 * 60},
 		{label: "5m", value: 5 * 60},
 		{label: "10m", value: 10 * 60},
 		{label: "15m", value: 15 * 60},
