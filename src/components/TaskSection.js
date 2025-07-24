@@ -41,6 +41,7 @@ import {LuGripVertical} from "react-icons/lu";
 import LoadingState from "./Loading";
 import EmptyState from "./EmptyState";
 import DurationModal from "./DurationModal";
+import ActiveRecallModal from "./ActiveRecallModal";
 import {LuTimer} from "react-icons/lu";
 
 // Sortable Task Item Component
@@ -234,6 +235,9 @@ const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 	const [pausedTime, setPausedTime] = useState(0);
 	const [pauseStartTime, setPauseStartTime] = useState(null);
 
+	// Active Recall Modal state
+	const [showActiveRecallModal, setShowActiveRecallModal] = useState(false);
+
 	const dropdownRef = useRef(null);
 	const audioRef = useRef(null);
 	const router = useRouter();
@@ -259,11 +263,13 @@ const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 
 	// Timer options
 	const timerOptions = [
+		{label: "1m", value: 1 * 60},
 		{label: "5m", value: 5 * 60},
+		{label: "10m", value: 10 * 60},
 		{label: "15m", value: 15 * 60},
 		{label: "25m ⭐️", value: 25 * 60},
-		{label: "30m", value: 30 * 60},
-		{label: "1h", value: 60 * 60},
+		// {label: "30m", value: 30 * 60},
+		// {label: "1h", value: 60 * 60},
 		// {label: "1.5h", value: 90 * 60},
 		// {label: "2h", value: 120 * 60},
 	];
@@ -294,12 +300,14 @@ const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 		timeLeft = Math.max(timerDuration - timePassed, 0);
 	}
 
-	// Play sound when timer is up and update productivity
+	// Play sound when timer is up, update productivity, and show active recall modal
 	useEffect(() => {
 		if (timeLeft === 0 && timerStart && audioRef.current) {
 			audioRef.current.play();
 			// Update productivity tracking when timer completes
 			updateProductivityTracking();
+			// Show active recall modal after timer completes
+			setShowActiveRecallModal(true);
 		}
 	}, [timeLeft, timerStart]);
 
@@ -917,6 +925,12 @@ const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 				onClose={() => setShowDurationModal(false)}
 				taskText={pendingTaskText}
 				onSave={handleDurationSave}
+			/>
+
+			{/* Active Recall Modal */}
+			<ActiveRecallModal
+				isOpen={showActiveRecallModal}
+				onClose={() => setShowActiveRecallModal(false)}
 			/>
 		</div>
 	);

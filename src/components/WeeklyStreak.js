@@ -185,7 +185,7 @@ const WeeklyStreak = () => {
 
 		// If this day is in the future, show gray
 		if (dayIndex > currentDayIndexInArray) {
-			return "bg-gray-100 dark:bg-neutral-700 text-neutral-900 dark:text-white";
+			return "bg-gray-100 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-500";
 		}
 
 		// If this day has no planned tasks, show gray
