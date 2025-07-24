@@ -136,7 +136,74 @@ const Productivity = ({onRefresh, plannedMinutes, updatePlannedMinutes}) => {
 			setCompletedMinutes(0);
 		}
 
+		// Update productivity status for today
+		await updateProductivityStatus(
+			totalMinutes,
+			productivityData?.completed_minutes || 0
+		);
+
 		setIsLoading(false);
+	};
+
+	const updateProductivityStatus = async (plannedMinutes, completedMinutes) => {
+		const {data: sessionData, error: sessionError} =
+			await supabase.auth.getSession();
+
+		if (sessionError || !sessionData?.session) {
+			return;
+		}
+
+		const userId = sessionData.session.user.id;
+
+		// Determine status
+		let status = "no_plan";
+		if (plannedMinutes > 0) {
+			status = completedMinutes >= plannedMinutes ? "success" : "failed";
+		}
+
+		// Check if productivity record already exists for today
+		const {data: existingProductivity, error: fetchError} = await supabase
+			.from("productivity")
+			.select("*")
+			.eq("user_id", userId)
+			.eq("date", currentDate)
+			.single();
+
+		if (fetchError && fetchError.code !== "PGRST116") {
+			console.error("Error fetching productivity:", fetchError);
+			return;
+		}
+
+		if (existingProductivity) {
+			// Update existing record
+			const {error: updateError} = await supabase
+				.from("productivity")
+				.update({
+					status: status,
+					planned_minutes: plannedMinutes,
+					completed_minutes: completedMinutes,
+				})
+				.eq("id", existingProductivity.id);
+
+			if (updateError) {
+				console.error("Error updating productivity:", updateError);
+			}
+		} else {
+			// Create new record
+			const {error: insertError} = await supabase.from("productivity").insert([
+				{
+					user_id: userId,
+					date: currentDate,
+					status: status,
+					planned_minutes: plannedMinutes,
+					completed_minutes: completedMinutes,
+				},
+			]);
+
+			if (insertError) {
+				console.error("Error inserting productivity:", insertError);
+			}
+		}
 	};
 
 	const formatTotalTime = (minutes) => {

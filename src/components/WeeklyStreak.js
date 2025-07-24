@@ -7,6 +7,7 @@ import {LuAlarmClock} from "react-icons/lu";
 import {FaFireAlt} from "react-icons/fa";
 import {AiOutlineFire} from "react-icons/ai";
 import {PiFireSimple} from "react-icons/pi";
+import {PiFireSimpleBold} from "react-icons/pi";
 
 const WeeklyStreak = () => {
 	const [weeklyData, setWeeklyData] = useState({});
@@ -57,9 +58,8 @@ const WeeklyStreak = () => {
 		const userId = sessionData.session.user.id;
 		const weeklyStats = {};
 
-		// Get the current week's dates
+		// Get the current week's dates using local time
 		const today = new Date();
-		// Adjust for timezone - use local date
 		const localToday = new Date(
 			today.getFullYear(),
 			today.getMonth(),
@@ -67,13 +67,6 @@ const WeeklyStreak = () => {
 		);
 		const startOfWeek = new Date(localToday);
 		startOfWeek.setDate(localToday.getDate() - localToday.getDay() + 1); // Monday
-
-		// Fetch tasks for the current week
-		const {data: tasksData, error: tasksError} = await supabase
-			.from("tasks")
-			.select("*")
-			.eq("user_id", userId)
-			.order("sort_order", {ascending: true});
 
 		// Fetch productivity data for the current week
 		const {data: productivityData, error: productivityError} = await supabase
@@ -88,77 +81,50 @@ const WeeklyStreak = () => {
 			error: productivityError,
 			today: localToday.toISOString().split("T")[0],
 			startOfWeek: startOfWeek.toISOString().split("T")[0],
-			originalToday: today.toISOString().split("T")[0],
-			queryRange: `${startOfWeek.toISOString().split("T")[0]} to ${
-				localToday.toISOString().split("T")[0]
-			}`,
 		});
 
-		if (!tasksError && tasksData && !productivityError) {
-			// Calculate planned and completed hours for each day
+		if (!productivityError && productivityData) {
+			// Process each day of the week
 			days.forEach((day) => {
-				const dayTasks = tasksData.filter(
-					(task) => task.day_of_week === "Daily" || task.day_of_week === day.key
-				);
+				// Find the date for this day of the week
+				const dayDate = new Date(startOfWeek);
+				const dayIndex = days.findIndex((d) => d.key === day.key);
+				dayDate.setDate(startOfWeek.getDate() + dayIndex);
 
-				const plannedMinutes = dayTasks.reduce((total, task) => {
-					if (task.duration) {
-						return total + task.duration;
-					}
-					return total;
-				}, 0);
-
-				// Find productivity data for this day
-				const dayProductivity = productivityData?.find((p) => {
-					const taskDate = new Date(p.date);
-					const today = new Date();
-					const localToday = new Date(
-						today.getFullYear(),
-						today.getMonth(),
-						today.getDate()
+				// Find productivity data for this specific date
+				const dayProductivity = productivityData.find((productivity) => {
+					const productivityDate = new Date(productivity.date);
+					const productivityLocalDate = new Date(
+						productivityDate.getFullYear(),
+						productivityDate.getMonth(),
+						productivityDate.getDate()
 					);
-
-					// For today, check multiple date formats
-					if (
-						day.key ===
-						days[localToday.getDay() === 0 ? 6 : localToday.getDay() - 1].key
-					) {
-						const todayDateString = localToday.toDateString();
-						const taskDateString = taskDate.toDateString();
-						const todayISO = localToday.toISOString().split("T")[0];
-						const taskISO = taskDate.toISOString().split("T")[0];
-
-						return todayDateString === taskDateString || todayISO === taskISO;
-					}
-
-					// For other days, use the day of week logic
-					const taskDayOfWeek = taskDate.getDay();
-					const dayIndex = taskDayOfWeek === 0 ? 6 : taskDayOfWeek - 1;
-					return days[dayIndex].key === day.key;
+					const dayLocalDate = new Date(
+						dayDate.getFullYear(),
+						dayDate.getMonth(),
+						dayDate.getDate()
+					);
+					return productivityLocalDate.getTime() === dayLocalDate.getTime();
 				});
 
-				const completedMinutes = dayProductivity?.completed_minutes || 0;
-
-				// Debug for today
-				if (
-					day.key ===
-					days[localToday.getDay() === 0 ? 6 : localToday.getDay() - 1].key
-				) {
-					console.log("Today's Data:", {
-						day: day.key,
-						dayProductivity,
-						completedMinutes,
-						allProductivityData: productivityData,
-					});
+				if (dayProductivity) {
+					weeklyStats[day.key] = {
+						planned: dayProductivity.planned_minutes || 0,
+						completed: dayProductivity.completed_minutes || 0,
+						success: dayProductivity.status === "success",
+						failed: dayProductivity.status === "failed",
+						noPlan: dayProductivity.status === "no_plan",
+					};
+				} else {
+					// No data for this day, show as no plan
+					weeklyStats[day.key] = {
+						planned: 0,
+						completed: 0,
+						success: false,
+						failed: false,
+						noPlan: true,
+					};
 				}
-
-				weeklyStats[day.key] = {
-					planned: plannedMinutes,
-					completed: completedMinutes,
-					success: completedMinutes >= plannedMinutes && plannedMinutes > 0,
-					failed: completedMinutes < plannedMinutes && plannedMinutes > 0,
-					noPlan: plannedMinutes === 0,
-				};
 			});
 
 			setWeeklyData(weeklyStats);
@@ -188,37 +154,11 @@ const WeeklyStreak = () => {
 			return "bg-gray-100 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-500";
 		}
 
-		// If this day has no planned tasks, show gray
+		// Use database status directly
 		if (dayData.noPlan) {
 			return "bg-gray-100 dark:bg-neutral-700 text-gray-400 dark:text-neutral-500";
 		}
 
-		// For current day, evaluate if goals are met
-		if (dayKey === currentDayKey) {
-			// Check if it's after midnight (new day has started)
-			const now = new Date();
-			const startOfDay = new Date(
-				now.getFullYear(),
-				now.getMonth(),
-				now.getDate()
-			);
-			const isAfterMidnight =
-				now.getTime() > startOfDay.getTime() + 24 * 60 * 60 * 1000;
-
-			if (dayData.success) {
-				return "bg-emerald-500 text-white";
-			} else if (dayData.failed && isAfterMidnight) {
-				// Only show red if it's after midnight and goals weren't met
-				return "bg-red-500 text-white";
-			} else {
-				// During the day, show orange if still working, green if goals met
-				return dayData.success
-					? "bg-emerald-500 text-white"
-					: "bg-orange-300 dark:bg-orange-400 text-white dark:text-white";
-			}
-		}
-
-		// For past days, show success/failure
 		if (dayData.success) {
 			return "bg-emerald-500 text-white";
 		}
@@ -255,7 +195,7 @@ const WeeklyStreak = () => {
 	return (
 		<div className="flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl dark:bg-neutral-900 dark:border-neutral-800">
 			<div className="p-4 md:p-5">
-				<PiFireSimple className=" text-2xl mb-3 text-orange-400 dark:text-orange-400" />
+				<PiFireSimpleBold className=" text-2xl mb-3 text-orange-400 dark:text-orange-400" />
 				<div className="flex items-center gap-x-2">
 					<h3 className="text-sm font-regular text-gray-400 dark:text-neutral-500">
 						Weekly Streak
