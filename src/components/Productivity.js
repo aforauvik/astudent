@@ -7,14 +7,21 @@ import {LuClock} from "react-icons/lu";
 import {LuAlarmClock} from "react-icons/lu";
 import {IoMdRefresh} from "react-icons/io";
 import WeeklyStreak from "./WeeklyStreak";
+import {TbClockExclamation, TbClockCheck, TbClockHeart} from "react-icons/tb";
 
-const Productivity = ({onRefresh}) => {
-	const [totalMinutes, setTotalMinutes] = useState(0);
+const Productivity = ({onRefresh, plannedMinutes, updatePlannedMinutes}) => {
+	const [totalMinutes, setTotalMinutes] = useState(plannedMinutes || 0);
 	const [completedMinutes, setCompletedMinutes] = useState(0);
 	const [isLoading, setIsLoading] = useState(true);
-	const [currentDate, setCurrentDate] = useState(
-		new Date().toISOString().split("T")[0]
-	);
+	const [currentDate, setCurrentDate] = useState(() => {
+		const today = new Date();
+		const localToday = new Date(
+			today.getFullYear(),
+			today.getMonth(),
+			today.getDate()
+		);
+		return localToday.toISOString().split("T")[0];
+	});
 	const router = useRouter();
 
 	// Get today's day string (e.g., 'Tue')
@@ -23,28 +30,35 @@ const Productivity = ({onRefresh}) => {
 	const todayDayString = jsDayToString[today.getDay()];
 
 	useEffect(() => {
+		// Update current date immediately
+		const now = new Date();
+		const localToday = new Date(
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDate()
+		);
+		const todayDate = localToday.toISOString().split("T")[0];
+		setCurrentDate(todayDate);
+
 		fetchProductivityData();
 
 		// Check for date change every minute
 		const interval = setInterval(() => {
-			const newDate = new Date().toISOString().split("T")[0];
+			const today = new Date();
+			const localToday = new Date(
+				today.getFullYear(),
+				today.getMonth(),
+				today.getDate()
+			);
+			const newDate = localToday.toISOString().split("T")[0];
 			if (newDate !== currentDate) {
 				setCurrentDate(newDate);
 				fetchProductivityData(); // Refresh data for new day
 			}
 		}, 60000); // Check every minute
 
-		// Set up real-time subscription for tasks
-		const tasksSubscription = supabase
-			.channel("tasks-changes")
-			.on(
-				"postgres_changes",
-				{event: "*", schema: "public", table: "tasks"},
-				() => {
-					fetchProductivityData(); // Refresh when tasks change
-				}
-			)
-			.subscribe();
+		// Only subscribe to productivity changes, not task changes
+		// Task changes will be handled by manual refresh from parent component
 
 		// Set up real-time subscription for productivity
 		const productivitySubscription = supabase
@@ -60,7 +74,6 @@ const Productivity = ({onRefresh}) => {
 
 		return () => {
 			clearInterval(interval);
-			supabase.removeChannel(tasksSubscription);
 			supabase.removeChannel(productivitySubscription);
 		};
 	}, [currentDate]);
@@ -103,6 +116,10 @@ const Productivity = ({onRefresh}) => {
 			});
 
 			setTotalMinutes(totalMinutes);
+			// Update parent state if function is provided
+			if (updatePlannedMinutes) {
+				updatePlannedMinutes(totalMinutes - (plannedMinutes || 0));
+			}
 		}
 
 		// Fetch completed minutes for today
@@ -174,7 +191,7 @@ const Productivity = ({onRefresh}) => {
 			<div className="flex items-center justify-between mb-4">
 				<div>
 					<h2 className="text-lg text-neutral-800 dark:text-white font-semibold">
-						🎉 Productivity Overview
+						🏆 Productivity Overview
 					</h2>
 				</div>
 				<div className="hidden lg:flex items-center justify-end gap-x-2">
@@ -182,7 +199,7 @@ const Productivity = ({onRefresh}) => {
 						Today
 					</h3>
 					<h3 className="text-sm font-medium text-gray-800 dark:text-neutral-200">
-						{new Date(currentDate).toLocaleDateString("en-US", {
+						{new Date().toLocaleDateString("en-US", {
 							weekday: "long",
 							year: "numeric",
 							month: "long",
@@ -203,7 +220,7 @@ const Productivity = ({onRefresh}) => {
 				{/* Planned Card */}
 				<div className="flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl dark:bg-neutral-900 dark:border-neutral-800">
 					<div className="p-4 md:p-5">
-						<LuAlarmClock className=" text-2xl mb-3 text-blue-600 dark:text-blue-400" />
+						<TbClockHeart className=" text-2xl mb-3 text-blue-600 dark:text-blue-400" />
 						<div className="flex items-center gap-x-2">
 							<h3 className="text-sm font-regular text-gray-400 dark:text-neutral-500">
 								Planned
@@ -211,7 +228,7 @@ const Productivity = ({onRefresh}) => {
 						</div>
 
 						<div className="mt-1 flex items-center gap-x-2">
-							<h3 className="text-lg sm:text-xl font-semibold text-blue-600 dark:text-blue-400">
+							<h3 className="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-white">
 								{formatTotalTime(totalMinutes)}
 							</h3>
 						</div>
@@ -222,7 +239,7 @@ const Productivity = ({onRefresh}) => {
 				{/* Completed Card */}
 				<div className="flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl dark:bg-neutral-900 dark:border-neutral-800">
 					<div className="p-4 md:p-5">
-						<LuAlarmClock className=" text-2xl mb-3 text-green-600 dark:text-green-400" />
+						<TbClockCheck className=" text-2xl mb-3 text-emerald-600 dark:text-emerald-400" />
 						<div className="flex items-center gap-x-2">
 							<h3 className="text-sm font-regular text-gray-400 dark:text-neutral-500">
 								Completed
@@ -230,7 +247,7 @@ const Productivity = ({onRefresh}) => {
 						</div>
 
 						<div className="mt-1 flex items-center gap-x-2">
-							<h3 className="text-lg sm:text-xl font-semibold text-green-600 dark:text-green-400">
+							<h3 className="text-lg sm:text-xl font-semibold text-neutral-900 dark:text-white">
 								{formatTotalTime(completedMinutes)}
 							</h3>
 						</div>
@@ -241,7 +258,7 @@ const Productivity = ({onRefresh}) => {
 				{/* Remaining Card */}
 				<div className="flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl dark:bg-neutral-900 dark:border-neutral-800">
 					<div className="p-4 md:p-5">
-						<LuAlarmClock className=" text-2xl mb-3 text-orange-600 dark:text-orange-400" />
+						<TbClockExclamation className=" text-2xl mb-3 text-orange-600 dark:text-orange-400" />
 						<div className="flex items-center gap-x-2">
 							<h3 className="text-sm font-regular text-gray-400 dark:text-neutral-500">
 								Remaining
@@ -252,7 +269,7 @@ const Productivity = ({onRefresh}) => {
 							<h3
 								className={`text-lg sm:text-xl font-semibold ${
 									totalMinutes - completedMinutes >= 0
-										? "text-orange-600 dark:text-orange-400"
+										? "text-neutral-900 dark:text-white"
 										: "text-red-600 dark:text-red-400"
 								}`}
 							>

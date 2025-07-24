@@ -30,6 +30,7 @@ import {
 
 import {LuAlarmClock} from "react-icons/lu";
 import {PiTimerFill} from "react-icons/pi";
+import {LuClipboardCheck} from "react-icons/lu";
 
 import {TiMediaPause} from "react-icons/ti";
 import {TiMediaPlay} from "react-icons/ti";
@@ -40,6 +41,7 @@ import {LuGripVertical} from "react-icons/lu";
 import LoadingState from "./Loading";
 import EmptyState from "./EmptyState";
 import DurationModal from "./DurationModal";
+import {LuTimer} from "react-icons/lu";
 
 // Sortable Task Item Component
 const SortableTaskItem = ({
@@ -121,15 +123,15 @@ const SortableTaskItem = ({
 								{task.text}
 							</span>
 							{task.duration && (
-								<div className="text-xs text-blue-600 dark:text-blue-400 mt-1 flex items-center gap-1">
-									<PiTimerFill className="text-xs" />
+								<div className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 flex items-center gap-1">
+									<LuTimer className="text-xs" />
 									{editingDuration === task.id ? (
 										<select
 											value={task.duration}
 											onChange={(e) =>
 												updateTaskDuration(task.id, parseInt(e.target.value))
 											}
-											className="text-xs bg-transparent border-none focus:ring-0 p-0 text-blue-600 dark:text-blue-400"
+											className="text-xs bg-transparent border-none focus:ring-0 p-0 text-emerald-600 dark:text-emerald-400"
 											onBlur={() => setEditingDuration(null)}
 											autoFocus
 										>
@@ -208,7 +210,7 @@ const SortableTaskItem = ({
 	);
 };
 
-const TaskSection = ({title, onTaskChange}) => {
+const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 	const [tasks, setTasks] = useState([]);
 	const [taskInput, setTaskInput] = useState("");
 	const [editingTask, setEditingTask] = useState(null);
@@ -399,8 +401,19 @@ const TaskSection = ({title, onTaskChange}) => {
 			setTaskInput("");
 			// Optionally sync in background
 			syncTasks();
-			// Notify parent component to refresh productivity
-			if (onTaskChange) onTaskChange();
+			// Only update planned minutes if new task affects today's productivity
+			if (duration) {
+				const today = new Date();
+				const jsDayToString = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+				const todayDayString = jsDayToString[today.getDay()];
+
+				// Only update if this task affects today's productivity (Daily or today's specific day)
+				if (activeDay === "Daily" || activeDay === todayDayString) {
+					if (onDurationChange) {
+						onDurationChange(duration);
+					}
+				}
+			}
 		} else {
 			console.error("Error adding task:", error);
 		}
@@ -420,13 +433,13 @@ const TaskSection = ({title, onTaskChange}) => {
 			setTasks(tasks.map((t) => (t.id === taskId ? {...t, done: !t.done} : t)));
 			// Optionally sync in background
 			syncTasks();
-			// Notify parent component to refresh productivity
-			if (onTaskChange) onTaskChange();
+			// Task check/uncheck does NOT affect productivity - only Pomodoro timer does
 		}
 	};
 
 	const deleteTask = async (id) => {
 		const {data: userData} = await supabase.auth.getUser();
+		const task = tasks.find((t) => t.id === id);
 
 		const {error} = await supabase
 			.from("tasks")
@@ -439,8 +452,7 @@ const TaskSection = ({title, onTaskChange}) => {
 			setTasks(tasks.filter((task) => task.id !== id));
 			// Optionally sync in background
 			syncTasks();
-			// Notify parent component to refresh productivity
-			if (onTaskChange) onTaskChange();
+			// Task deletion does NOT affect productivity - only Pomodoro timer does
 		}
 	};
 
@@ -451,6 +463,7 @@ const TaskSection = ({title, onTaskChange}) => {
 
 	const updateTask = async () => {
 		if (editText.trim()) {
+			const task = tasks.find((t) => t.id === editingTask);
 			const {error} = await supabase
 				.from("tasks")
 				.update({text: editText})
@@ -466,13 +479,15 @@ const TaskSection = ({title, onTaskChange}) => {
 				setEditText("");
 				// Optionally sync in background
 				syncTasks();
-				// Notify parent component to refresh productivity
-				if (onTaskChange) onTaskChange();
+				// Task text editing does NOT affect productivity - only Pomodoro timer does
 			}
 		}
 	};
 
 	const updateTaskDuration = async (taskId, duration) => {
+		const oldTask = tasks.find((t) => t.id === taskId);
+		const oldDuration = oldTask?.duration || 0;
+
 		const {error} = await supabase
 			.from("tasks")
 			.update({duration: duration})
@@ -486,8 +501,25 @@ const TaskSection = ({title, onTaskChange}) => {
 			setEditingDuration(null);
 			// Optionally sync in background
 			syncTasks();
-			// Notify parent component to refresh productivity
-			if (onTaskChange) onTaskChange();
+
+			// Update planned minutes directly if duration changed and task affects today's productivity
+			if (oldDuration !== duration) {
+				const task = tasks.find((t) => t.id === taskId);
+				const today = new Date();
+				const jsDayToString = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+				const todayDayString = jsDayToString[today.getDay()];
+
+				// Only update if this task affects today's productivity (Daily or today's specific day)
+				if (
+					task &&
+					(task.day_of_week === "Daily" || task.day_of_week === todayDayString)
+				) {
+					const durationChange = duration - oldDuration;
+					if (onDurationChange) {
+						onDurationChange(durationChange);
+					}
+				}
+			}
 		}
 	};
 
@@ -502,14 +534,20 @@ const TaskSection = ({title, onTaskChange}) => {
 				const userId = userData.user.id;
 
 				// Update the user's total productivity for today
-				const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
+				const today = new Date();
+				const localToday = new Date(
+					today.getFullYear(),
+					today.getMonth(),
+					today.getDate()
+				);
+				const todayDate = localToday.toISOString().split("T")[0]; // Local YYYY-MM-DD format
 
 				// First, try to get existing productivity record for today
 				const {data: existingData, error: fetchError} = await supabase
 					.from("productivity")
 					.select("*")
 					.eq("user_id", userId)
-					.eq("date", today)
+					.eq("date", todayDate)
 					.single();
 
 				if (fetchError && fetchError.code !== "PGRST116") {
@@ -541,7 +579,7 @@ const TaskSection = ({title, onTaskChange}) => {
 						.insert([
 							{
 								user_id: userId,
-								date: today,
+								date: todayDate,
 								completed_minutes: completedMinutes,
 							},
 						]);
@@ -588,8 +626,7 @@ const TaskSection = ({title, onTaskChange}) => {
 			}
 			// Optionally sync in background
 			syncTasks();
-			// Notify parent component to refresh productivity
-			if (onTaskChange) onTaskChange();
+			// Task reordering does NOT affect productivity - only Pomodoro timer does
 		}
 	};
 
