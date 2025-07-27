@@ -6,7 +6,6 @@ import {useRouter} from "next/navigation";
 import {LuAlarmClock} from "react-icons/lu";
 import {FaFireAlt} from "react-icons/fa";
 import {AiOutlineFire} from "react-icons/ai";
-import {PiFireSimple} from "react-icons/pi";
 import {PiFireSimpleBold} from "react-icons/pi";
 
 const WeeklyStreak = () => {
@@ -83,7 +82,21 @@ const WeeklyStreak = () => {
 			startOfWeek: startOfWeek.toISOString().split("T")[0],
 		});
 
-		if (!productivityError && productivityData) {
+		// Debug: Log the first record structure to see what fields exist
+		if (productivityData && productivityData.length > 0) {
+			console.log("First record structure:", productivityData[0]);
+		}
+
+		// Debug: Log the processed weekly stats
+		console.log("Weekly Stats:", weeklyStats);
+
+		if (productivityError) {
+			console.error("Error fetching productivity data:", productivityError);
+			setIsLoading(false);
+			return;
+		}
+
+		if (productivityData) {
 			// Process each day of the week
 			days.forEach((day) => {
 				// Find the date for this day of the week
@@ -108,12 +121,20 @@ const WeeklyStreak = () => {
 				});
 
 				if (dayProductivity) {
+					// Determine status based on completed minutes if status is not set
+					let status = dayProductivity.status;
+					if (!status && dayProductivity.completed_minutes > 0) {
+						status = "success";
+					} else if (!status) {
+						status = "no_plan";
+					}
+
 					weeklyStats[day.key] = {
 						planned: dayProductivity.planned_minutes || 0,
 						completed: dayProductivity.completed_minutes || 0,
-						success: dayProductivity.status === "success",
-						failed: dayProductivity.status === "failed",
-						noPlan: dayProductivity.status === "no_plan",
+						success: status === "success",
+						failed: status === "failed",
+						noPlan: status === "no_plan",
 					};
 				} else {
 					// No data for this day, show as no plan
@@ -128,6 +149,18 @@ const WeeklyStreak = () => {
 			});
 
 			setWeeklyData(weeklyStats);
+		} else {
+			// No data found, set empty stats
+			days.forEach((day) => {
+				weeklyStats[day.key] = {
+					planned: 0,
+					completed: 0,
+					success: false,
+					failed: false,
+					noPlan: true,
+				};
+			});
+			setWeeklyData(weeklyStats);
 		}
 		setIsLoading(false);
 	};
@@ -140,14 +173,28 @@ const WeeklyStreak = () => {
 		// Get current day of week (0 = Sunday, 1 = Monday, etc.)
 		const today = new Date();
 		const currentDayIndex = today.getDay();
-		const currentDayKey =
-			days[currentDayIndex === 0 ? 6 : currentDayIndex - 1].key;
+
+		// Convert to our days array index (Monday = 0, Tuesday = 1, etc.)
+		const currentDayIndexInArray =
+			currentDayIndex === 0 ? 6 : currentDayIndex - 1;
+		const currentDayKey = days[currentDayIndexInArray].key;
 
 		// Find the index of the day we're checking
 		const dayIndex = days.findIndex((day) => day.key === dayKey);
-		const currentDayIndexInArray = days.findIndex(
-			(day) => day.key === currentDayKey
-		);
+
+		// Debug: Log the status calculation
+		console.log(`Day ${dayKey}:`, {
+			dayData,
+			currentDayIndex,
+			currentDayIndexInArray,
+			currentDayKey,
+			dayIndex,
+			isFuture: dayIndex > currentDayIndexInArray,
+			status: dayData?.status,
+			success: dayData?.success,
+			failed: dayData?.failed,
+			noPlan: dayData?.noPlan,
+		});
 
 		// If this day is in the future, show gray
 		if (dayIndex > currentDayIndexInArray) {
@@ -201,11 +248,11 @@ const WeeklyStreak = () => {
 						Weekly Streak
 					</h3>
 				</div>
-				<div className="mt-2 flex justify-between gap-2">
+				<div className="mt-2 flex gap-2">
 					{days.map((day) => (
 						<div
 							key={day.key}
-							className={`w-8 h-8 rounded-lg flex items-center justify-center text-xs font-semibold transition-colors ${getDayStatus(
+							className={`w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold transition-colors ${getDayStatus(
 								day.key
 							)}`}
 							title={`${day.fullName}: ${

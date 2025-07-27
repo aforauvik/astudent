@@ -25,7 +25,7 @@ const ActiveRecallModal = ({isOpen, onClose}) => {
 				{/* Image */}
 				<div className="flex justify-center mb-4">
 					<Image
-						src="/recall.svg"
+						src="/flame-success.png"
 						alt="Active Recall"
 						width={240}
 						height={240}

@@ -9,7 +9,7 @@ SET status = CASE
     WHEN completed_minutes > 0 THEN 'success'
     ELSE 'no_plan'
 END 
-WHERE status IS NULL OR status = 'no_plan';
+WHERE status IS NULL;
 
 -- Create index for better performance on status queries
 CREATE INDEX IF NOT EXISTS idx_productivity_user_date_status ON productivity(user_id, date, status); 

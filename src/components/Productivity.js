@@ -142,6 +142,13 @@ const Productivity = ({onRefresh, plannedMinutes, updatePlannedMinutes}) => {
 			productivityData?.completed_minutes || 0
 		);
 
+		// Debug: Log the productivity update
+		console.log("Productivity Update:", {
+			totalMinutes,
+			completedMinutes: productivityData?.completed_minutes || 0,
+			currentDate,
+		});
+
 		setIsLoading(false);
 	};
 
@@ -262,10 +269,10 @@ const Productivity = ({onRefresh, plannedMinutes, updatePlannedMinutes}) => {
 					</h2>
 				</div>
 				<div className="hidden lg:flex items-center justify-end gap-x-2">
-					<h3 className="text-sm font-semibold text-gray-400 dark:text-neutral-500">
+					<h3 className="text-xs font-semibold text-gray-400 dark:text-neutral-500">
 						Today
 					</h3>
-					<h3 className="text-sm font-medium text-gray-800 dark:text-neutral-200">
+					<h3 className="text-xs font-medium text-gray-800 dark:text-neutral-200">
 						{new Date().toLocaleDateString("en-US", {
 							weekday: "long",
 							year: "numeric",

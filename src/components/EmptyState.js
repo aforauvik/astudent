@@ -3,9 +3,9 @@
 import Image from "next/image";
 
 const imagesForStates = {
-	taskEmptyImage: "/empty-task.svg",
-	rememberEmptyImage: "/empty-remember.svg",
-	trackEmptyImage: "/empty-track.svg",
+	taskEmptyImage: "/flame-task.png",
+	rememberEmptyImage: "/flame-remember.png",
+	trackEmptyImage: "/flame-track.png",
 };
 
 const emptyStateMessages = {
@@ -26,8 +26,8 @@ const EmptyState = ({
 		<div className="flex flex-col items-center justify-center py-8 text-center text-gray-400 dark:text-neutral-500">
 			<Image
 				src={imageSrc}
-				width={250}
-				height={250}
+				width={200}
+				height={200}
 				alt="Empty state"
 				className="mb-2"
 			/>
