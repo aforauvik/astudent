@@ -5,6 +5,7 @@ import {IoIosCloseCircle} from "react-icons/io";
 
 const DurationModal = ({isOpen, onClose, taskText, onSave}) => {
 	const [selectedDuration, setSelectedDuration] = useState(null);
+	const [startTime, setStartTime] = useState("");
 
 	const durationOptions = [
 		{label: "5 minutes", value: 5},
@@ -19,14 +20,16 @@ const DurationModal = ({isOpen, onClose, taskText, onSave}) => {
 
 	const handleSave = () => {
 		if (selectedDuration) {
-			onSave(selectedDuration);
+			onSave(selectedDuration, startTime);
 			setSelectedDuration(null);
+			setStartTime("");
 			onClose();
 		}
 	};
 
 	const handleClose = () => {
 		setSelectedDuration(null);
+		setStartTime("");
 		onClose();
 	};
 
@@ -69,6 +72,19 @@ const DurationModal = ({isOpen, onClose, taskText, onSave}) => {
 							{option.label}
 						</button>
 					))}
+				</div>
+
+				<div className="mb-6">
+					<label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+						Start Time (Optional)
+					</label>
+					<input
+						type="time"
+						value={startTime}
+						onChange={(e) => setStartTime(e.target.value)}
+						className="w-full px-3 py-2 border border-gray-300 dark:border-neutral-800 rounded-lg text-sm bg-white dark:bg-neutral-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 dark:focus:ring-blue-400 [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:dark:invert"
+						placeholder="Select start time"
+					/>
 				</div>
 
 				<div className="flex gap-3">

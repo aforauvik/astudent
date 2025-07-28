@@ -42,7 +42,7 @@ import LoadingState from "./Loading";
 import EmptyState from "./EmptyState";
 import DurationModal from "./DurationModal";
 import ActiveRecallModal from "./ActiveRecallModal";
-import {LuTimer} from "react-icons/lu";
+import {LuTimer, LuCalendarClock} from "react-icons/lu";
 
 // Sortable Task Item Component
 const SortableTaskItem = ({
@@ -64,9 +64,15 @@ const SortableTaskItem = ({
 	startEditing,
 	deleteTask,
 	formatDuration,
+	formatStartTime,
 	editingDuration,
 	setEditingDuration,
 	updateTaskDuration,
+	editingStartTime,
+	setEditingStartTime,
+	updateTaskStartTime,
+	handleStartTimeChange,
+	handleStartTimeSave,
 }) => {
 	const {attributes, listeners, setNodeRef, transform, transition, isDragging} =
 		useSortable({id: task.id});
@@ -124,35 +130,73 @@ const SortableTaskItem = ({
 								{task.text}
 							</span>
 							{task.duration && (
-								<div className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 flex items-center gap-1">
-									<LuTimer className="text-xs" />
-									{editingDuration === task.id ? (
-										<select
-											value={task.duration}
-											onChange={(e) =>
-												updateTaskDuration(task.id, parseInt(e.target.value))
-											}
-											className="text-xs bg-transparent border-none focus:ring-0 p-0 text-emerald-600 dark:text-emerald-400"
-											onBlur={() => setEditingDuration(null)}
-											autoFocus
-										>
-											<option value={5}>5 minutes</option>
-											<option value={10}>10 minutes</option>
-											<option value={15}>15 minutes</option>
-											<option value={30}>30 minutes</option>
-											<option value={60}>1 hour</option>
-											<option value={120}>2 hours</option>
-											<option value={180}>3 hours</option>
-											<option value={240}>4 hours</option>
-										</select>
-									) : (
-										<span
-											className="cursor-pointer hover:underline"
-											onClick={() => setEditingDuration(task.id)}
-										>
-											{formatDuration(task.duration)}
-										</span>
+								<div className="text-xs text-emerald-600 dark:text-emerald-400 mt-2 flex items-center gap-2">
+									{task.start_time && formatStartTime(task.start_time) && (
+										<div className="text-xs text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+											<LuCalendarClock className="text-xs" />
+											{editingStartTime === task.id ? (
+												<input
+													type="time"
+													value={task.start_time}
+													onChange={(e) =>
+														handleStartTimeChange(task.id, e.target.value)
+													}
+													onBlur={() => {
+														handleStartTimeSave(task.id);
+														setEditingStartTime(null);
+													}}
+													onKeyDown={(e) => {
+														if (e.key === "Enter") {
+															handleStartTimeSave(task.id);
+															setEditingStartTime(null);
+														}
+														if (e.key === "Escape") {
+															setEditingStartTime(null);
+														}
+													}}
+													className="text-xs bg-transparent border-none focus:ring-0 p-0 text-emerald-600 dark:text-emerald-400 [&::-webkit-calendar-picker-indicator]:filter [&::-webkit-calendar-picker-indicator]:dark:invert"
+													autoFocus
+												/>
+											) : (
+												<span
+													className="cursor-pointer hover:underline"
+													onClick={() => setEditingStartTime(task.id)}
+												>
+													{formatStartTime(task.start_time)}
+												</span>
+											)}
+										</div>
 									)}
+									<div className="flex items-center gap-1">
+										<LuTimer className="text-xs" />
+										{editingDuration === task.id ? (
+											<select
+												value={task.duration}
+												onChange={(e) =>
+													updateTaskDuration(task.id, parseInt(e.target.value))
+												}
+												className="text-xs bg-transparent border-none focus:ring-0 p-0 text-emerald-600 dark:text-emerald-400"
+												onBlur={() => setEditingDuration(null)}
+												autoFocus
+											>
+												<option value={5}>5 minutes</option>
+												<option value={10}>10 minutes</option>
+												<option value={15}>15 minutes</option>
+												<option value={30}>30 minutes</option>
+												<option value={60}>1 hour</option>
+												<option value={120}>2 hours</option>
+												<option value={180}>3 hours</option>
+												<option value={240}>4 hours</option>
+											</select>
+										) : (
+											<span
+												className="cursor-pointer hover:underline"
+												onClick={() => setEditingDuration(task.id)}
+											>
+												{formatDuration(task.duration)}
+											</span>
+										)}
+									</div>
 								</div>
 							)}
 						</div>
@@ -218,6 +262,7 @@ const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 	const [editText, setEditText] = useState("");
 	const [openDropdown, setOpenDropdown] = useState(null);
 	const [editingDuration, setEditingDuration] = useState(null);
+	const [editingStartTime, setEditingStartTime] = useState(null);
 	const [activeDay, setActiveDay] = useState("Daily");
 	const [isLoading, setIsLoading] = useState(true);
 
@@ -374,7 +419,7 @@ const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 		}
 	};
 
-	const handleDurationSave = async (duration) => {
+	const handleDurationSave = async (duration, startTime) => {
 		const {data: userData, error: userError} = await supabase.auth.getUser();
 
 		if (userError || !userData?.user) {
@@ -388,18 +433,24 @@ const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 			tasks.length > 0 ? Math.max(...tasks.map((t) => t.sort_order || 0)) : 0;
 		const newSortOrder = maxSortOrder + 1;
 
+		// Create the task data object
+		const taskData = {
+			text: pendingTaskText,
+			done: false,
+			user_id: userId,
+			day_of_week: activeDay,
+			sort_order: newSortOrder,
+			duration: duration,
+		};
+
+		// Only add start_time if it's provided and the column exists
+		if (startTime) {
+			taskData.start_time = startTime;
+		}
+
 		const {data, error} = await supabase
 			.from("tasks")
-			.insert([
-				{
-					text: pendingTaskText,
-					done: false,
-					user_id: userId,
-					day_of_week: activeDay,
-					sort_order: newSortOrder,
-					duration: duration,
-				},
-			])
+			.insert([taskData])
 			.select();
 
 		if (!error && data && data.length > 0) {
@@ -423,6 +474,7 @@ const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 			}
 		} else {
 			console.error("Error adding task:", error);
+			console.error("Error details:", JSON.stringify(error, null, 2));
 		}
 	};
 
@@ -527,6 +579,39 @@ const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 					}
 				}
 			}
+		}
+	};
+
+	const updateTaskStartTime = async (taskId, startTime) => {
+		const {error} = await supabase
+			.from("tasks")
+			.update({start_time: startTime || null})
+			.eq("id", taskId);
+
+		if (!error) {
+			// Optimistically update local state
+			setTasks(
+				tasks.map((t) =>
+					t.id === taskId ? {...t, start_time: startTime || null} : t
+				)
+			);
+			setEditingStartTime(null);
+			// Optionally sync in background
+			syncTasks();
+		}
+	};
+
+	const handleStartTimeChange = (taskId, newTime) => {
+		// Update local state immediately for better UX
+		setTasks(
+			tasks.map((t) => (t.id === taskId ? {...t, start_time: newTime} : t))
+		);
+	};
+
+	const handleStartTimeSave = async (taskId) => {
+		const task = tasks.find((t) => t.id === taskId);
+		if (task) {
+			await updateTaskStartTime(taskId, task.start_time);
 		}
 	};
 
@@ -722,6 +807,25 @@ const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 		}
 	};
 
+	const formatStartTime = (timeString) => {
+		if (!timeString) return null;
+
+		try {
+			const [hours, minutes] = timeString.split(":");
+			const hour = parseInt(hours);
+			const minute = parseInt(minutes);
+
+			// Convert to 12-hour format
+			const period = hour >= 12 ? "PM" : "AM";
+			const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+			const displayMinute = minute.toString().padStart(2, "0");
+
+			return `${displayHour}:${displayMinute} ${period}`;
+		} catch (error) {
+			return timeString; // Return original if parsing fails
+		}
+	};
+
 	return (
 		<div className="p-4 mt-2 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-950 dark:border-neutral-900 md:w-full sm:w-1/2 w-full">
 			<div className="flex flex-row justify-between items-start">
@@ -858,9 +962,15 @@ const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 										startEditing={startEditing}
 										deleteTask={deleteTask}
 										formatDuration={formatDuration}
+										formatStartTime={formatStartTime}
 										editingDuration={editingDuration}
 										setEditingDuration={setEditingDuration}
 										updateTaskDuration={updateTaskDuration}
+										editingStartTime={editingStartTime}
+										setEditingStartTime={setEditingStartTime}
+										updateTaskStartTime={updateTaskStartTime}
+										handleStartTimeChange={handleStartTimeChange}
+										handleStartTimeSave={handleStartTimeSave}
 									/>
 								))}
 							</ul>
@@ -905,9 +1015,15 @@ const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 											startEditing={startEditing}
 											deleteTask={deleteTask}
 											formatDuration={formatDuration}
+											formatStartTime={formatStartTime}
 											editingDuration={editingDuration}
 											setEditingDuration={setEditingDuration}
 											updateTaskDuration={updateTaskDuration}
+											editingStartTime={editingStartTime}
+											setEditingStartTime={setEditingStartTime}
+											updateTaskStartTime={updateTaskStartTime}
+											handleStartTimeChange={handleStartTimeChange}
+											handleStartTimeSave={handleStartTimeSave}
 										/>
 									))}
 								</ul>
