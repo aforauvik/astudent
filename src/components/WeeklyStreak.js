@@ -242,7 +242,7 @@ const WeeklyStreak = () => {
 	return (
 		<div className="flex flex-col bg-white border border-gray-200 shadow-2xs rounded-xl dark:bg-neutral-900 dark:border-neutral-800">
 			<div className="p-4 md:p-5">
-				<PiFireSimpleBold className=" text-2xl mb-3 text-orange-400 dark:text-orange-400" />
+				<PiFireSimpleBold className=" text-2xl mb-3 text-red-400 dark:text-red-400" />
 				<div className="flex items-center gap-x-2">
 					<h3 className="text-sm font-regular text-gray-400 dark:text-neutral-500">
 						Weekly Streak
