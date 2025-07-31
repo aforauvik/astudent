@@ -875,7 +875,7 @@ const TaskSection = ({title, onTaskChange, onDurationChange}) => {
 									<button
 										key={opt.value}
 										onClick={() => startTimer(opt.value)}
-										className="w-full px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-neutral-700 first:rounded-t-lg last:rounded-b-lg"
+										className="w-full px-3 py-2 text-left text-sm text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-neutral-700 first:rounded-t-lg last:rounded-b-lg"
 									>
 										{opt.label}
 									</button>
