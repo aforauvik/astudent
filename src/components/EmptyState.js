@@ -3,9 +3,9 @@
 import Image from "next/image";
 
 const imagesForStates = {
-	taskEmptyImage: "/flame-task.png",
+	taskEmptyImage: "/flame-remember.png",
 	rememberEmptyImage: "/flame-remember.png",
-	trackEmptyImage: "/flame-track.png",
+	trackEmptyImage: "/flame-remember.png",
 };
 
 const emptyStateMessages = {
