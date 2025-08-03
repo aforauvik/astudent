@@ -1,12 +1,12 @@
 "use client";
 
-import {useState, useEffect} from "react";
+import {useState, useEffect, Suspense} from "react";
 import {useRouter, useSearchParams} from "next/navigation";
 import Link from "next/link";
 import {supabase} from "../../lib/supabaseClient";
 import {inputStyle, logo} from "../AllStyles";
 
-const ResetPassword = () => {
+function ResetPasswordContent() {
 	const [password, setPassword] = useState("");
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [error, setError] = useState("");
@@ -169,6 +169,30 @@ const ResetPassword = () => {
 			</div>
 		</div>
 	);
-};
+}
 
-export default ResetPassword;
+export default function ResetPassword() {
+	return (
+		<Suspense
+			fallback={
+				<div className="w-full max-w-md mx-auto p-6">
+					<div className="mt-7 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-neutral-900 dark:border-neutral-700">
+						<div className="p-4 sm:p-7">
+							<div className="text-center">
+								<Link href="/">
+									<div className="flex justify-center mb-6">{logo}</div>
+								</Link>
+								<div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+								<p className="mt-2 text-sm text-gray-600 dark:text-neutral-400">
+									Loading...
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			}
+		>
+			<ResetPasswordContent />
+		</Suspense>
+	);
+}

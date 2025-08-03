@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect} from "react";
+import {useEffect, Suspense} from "react";
 import {useRouter, useSearchParams} from "next/navigation";
 import {supabase} from "../lib/supabaseClient";
 import SignIn from "@/components/SignIn";
@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import Image from "next/image";
 import Landing from "@/components/Landing";
 
-export default function Home() {
+function HomeContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 
@@ -35,5 +35,13 @@ export default function Home() {
 			<Footer /> */}
 			<Landing />
 		</>
+	);
+}
+
+export default function Home() {
+	return (
+		<Suspense fallback={<Landing />}>
+			<HomeContent />
+		</Suspense>
 	);
 }
